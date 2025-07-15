@@ -56,5 +56,64 @@ class EchoAppTestCase(unittest.TestCase):
         self.assertIn('greeting', data)
         self.assertEqual(data['greeting'], 'Hello, José María! Welcome to our echo application.')
 
+    def test_exact_decimal_page(self):
+        """Test that the exact decimal page loads correctly"""
+        response = self.app.get('/exact-decimal')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'Exact Decimal Converter', response.data)
+        self.assertIn(b'Enter a decimal number:', response.data)
+
+    def test_exact_decimal_with_valid_number(self):
+        """Test exact decimal endpoint with valid number"""
+        response = self.app.post('/exact-decimal', data={'decimal': '0.1'})
+        self.assertEqual(response.status_code, 200)
+        
+        data = json.loads(response.data)
+        self.assertIn('input', data)
+        self.assertIn('exact_decimal', data)
+        self.assertEqual(data['input'], '0.1')
+        self.assertEqual(data['exact_decimal'], '0.1')
+
+    def test_exact_decimal_with_precision_issue(self):
+        """Test exact decimal endpoint with a number that has precision issues"""
+        # 0.1 + 0.2 = 0.30000000000000004 in floating point
+        response = self.app.post('/exact-decimal', data={'decimal': '0.30000000000000004'})
+        self.assertEqual(response.status_code, 200)
+        
+        data = json.loads(response.data)
+        self.assertIn('input', data)
+        self.assertIn('exact_decimal', data)
+        self.assertEqual(data['input'], '0.30000000000000004')
+        self.assertEqual(data['exact_decimal'], '0.30000000000000004')
+
+    def test_exact_decimal_with_empty_input(self):
+        """Test exact decimal endpoint with empty input"""
+        response = self.app.post('/exact-decimal', data={'decimal': ''})
+        self.assertEqual(response.status_code, 400)
+        
+        data = json.loads(response.data)
+        self.assertIn('error', data)
+        self.assertEqual(data['error'], 'Please enter a decimal number')
+
+    def test_exact_decimal_with_invalid_input(self):
+        """Test exact decimal endpoint with invalid input"""
+        response = self.app.post('/exact-decimal', data={'decimal': 'not a number'})
+        self.assertEqual(response.status_code, 400)
+        
+        data = json.loads(response.data)
+        self.assertIn('error', data)
+        self.assertEqual(data['error'], 'Invalid decimal number. Please enter a valid number.')
+
+    def test_exact_decimal_with_integer(self):
+        """Test exact decimal endpoint with integer input"""
+        response = self.app.post('/exact-decimal', data={'decimal': '5'})
+        self.assertEqual(response.status_code, 200)
+        
+        data = json.loads(response.data)
+        self.assertIn('input', data)
+        self.assertIn('exact_decimal', data)
+        self.assertEqual(data['input'], '5')
+        self.assertEqual(data['exact_decimal'], '5.0')
+
 if __name__ == '__main__':
     unittest.main()

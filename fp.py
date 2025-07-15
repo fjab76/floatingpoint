@@ -137,6 +137,7 @@ class FP:
     def from_float(f: float) -> "FP":
         """Return a FP object from the given float number
         """
+        setcontext(Context(prec=400, rounding=ROUND_HALF_UP))
         bits = from_decimal_to_binary(f)[0]
         return FP.from_binary(bits)
 
@@ -152,7 +153,7 @@ class FP:
         for i in range(1, len(fraction_bits) + 1):
             place_value = fraction_bits[i - 1] * half**i
             mantissa += place_value
-        exact_decimal = sign * mantissa * Decimal(2)**unbiased_exp
+        exact_decimal = (sign * mantissa * Decimal(2)**unbiased_exp).normalize()
         return FP(float(exact_decimal), bits, exact_decimal, unbiased_exp)
 
 
@@ -297,7 +298,7 @@ if __name__ == "__main__":
     # print(normalise_to_significant_digits(72057594037927956, 16))
     # print(normalise_to_significant_digits(0.0454, 1))
     # print(FP.from_float(1023.99999999999988))
-    print(FP.from_float(0.1).get_d_digit_decimals(19))
+    print(FP.from_float(0.1))
     # print(FP.from_decimal(Decimal(0.1)).get_d_digit_decimals(18))
     # print(FP.get_number_significant_digits("1023.999999999999887"))
 
