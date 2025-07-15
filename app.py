@@ -8,7 +8,7 @@ which composes a greeting and returns it to be displayed.
 
 from flask import Flask, render_template, request, jsonify
 import os
-from fp import from_float
+from fp import FP
 
 app = Flask(__name__)
 
@@ -53,16 +53,18 @@ def exact_decimal_process():
         float_value = float(decimal_input)
         
         # Process with from_float function
-        result = from_float(float_value)
+        result = FP.from_float(float_value)
         
         # Return the exact decimal representation
+        print(f"Exact decimal for {decimal_input}: {result.exact_decimal}")
         return jsonify({
             'input': decimal_input,
-            'exact_decimal': result.exact_decimal
+            'exact_decimal': str(result.exact_decimal)
         })
     except ValueError:
         return jsonify({'error': 'Invalid decimal number. Please enter a valid number.'}), 400
 
 if __name__ == '__main__':
     # Run the application in debug mode for development
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=8080)
+
