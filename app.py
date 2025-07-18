@@ -55,11 +55,14 @@ def exact_decimal_process():
         # Process with from_float function
         result = FP.from_float(float_value)
         
-        # Return the exact decimal representation
-        print(f"Exact decimal for {decimal_input}: {result.exact_decimal}")
+        # Return all FP attributes
+        print(f"FP attributes for {decimal_input}: fp={result.fp}, bits={result.bits}, exact_decimal={result.exact_decimal}, unbiased_exp={result.unbiased_exp}")
         return jsonify({
             'input': decimal_input,
-            'exact_decimal': str(result.exact_decimal)
+            'fp': result.fp,
+            'bits': result.bits,
+            'exact_decimal': str(result.exact_decimal),
+            'unbiased_exp': result.unbiased_exp
         })
     except ValueError:
         return jsonify({'error': 'Invalid decimal number. Please enter a valid number.'}), 400

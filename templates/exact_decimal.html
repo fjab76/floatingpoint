@@ -181,7 +181,10 @@
                     result.className = 'result success';
                     result.innerHTML = `
                         <strong>Input:</strong> ${data.input}<br>
-                        <strong>Exact Decimal:</strong> ${data.exact_decimal}
+                        <strong>Floating Point Representation:</strong> ${data.fp}<br>
+                        <strong>Bits Representation:</strong> ${data.bits}<br>
+                        <strong>Exact Decimal:</strong> ${data.exact_decimal}<br>
+                        <strong>Unbiased Exponent:</strong> ${data.unbiased_exp}
                     `;
                 }
                 result.style.display = 'block';
