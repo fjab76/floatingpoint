@@ -208,7 +208,7 @@
                             <strong>${data.digits}-digit Decimal Numbers:</strong><br>
                             <strong>Count:</strong> ${data.d_digit_count}<br>
                             <strong>Distance:</strong> ${data.d_digit_distance}<br>
-                            <strong>List:</strong> ${data.d_digit_list.join(', ')}
+                            <strong>List:</strong><br>${data.d_digit_list.map(num => `&nbsp;&nbsp;${num}`).join('<br>')}
                         </div>
                     `;
                     result.innerHTML = resultHtml;
