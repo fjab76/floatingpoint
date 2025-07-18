@@ -7,7 +7,7 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 600px;
+            max-width: 900px;
             margin: 50px auto;
             padding: 20px;
             background-color: #f5f5f5;
@@ -111,6 +111,18 @@
             border-radius: 3px;
             font-family: 'Courier New', monospace;
         }
+        .result-content {
+            word-break: break-all;
+            line-height: 1.6;
+        }
+        .result-content strong {
+            display: inline-block;
+            margin-top: 8px;
+            margin-bottom: 2px;
+        }
+        .result-content strong:first-child {
+            margin-top: 0;
+        }
     </style>
 </head>
 <body>
@@ -180,8 +192,13 @@
                 } else {
                     result.className = 'result success';
                     result.innerHTML = `
-                        <strong>Input:</strong> ${data.input}<br>
-                        <strong>Exact Decimal:</strong> ${data.exact_decimal}
+                        <div class="result-content">
+                            <strong>Input:</strong> ${data.input}<br>
+                            <strong>Floating Point Representation:</strong> ${data.fp}<br>
+                            <strong>Bits Representation:</strong> ${data.bits}<br>
+                            <strong>Exact Decimal:</strong> ${data.exact_decimal}<br>
+                            <strong>Unbiased Exponent:</strong> ${data.unbiased_exp}
+                        </div>
                     `;
                 }
                 result.style.display = 'block';

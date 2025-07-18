@@ -28,6 +28,23 @@ A simple web application that demonstrates the client-server model. Users can en
    pip install -r requirements.txt
    ```
 
+## Running tests
+
+1. Ensure you have `pytest` installed:
+   ```bash
+   pip install pytest
+   ```
+
+2. Run the tests:
+   ```bash
+   pytest tests/
+   ```
+
+3. Run the tests:
+   ```bash
+   python -m unittest test_app.py -v
+   ```
+
 ## Running the Application
 
 1. Start the Flask server:

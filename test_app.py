@@ -70,9 +70,15 @@ class EchoAppTestCase(unittest.TestCase):
         
         data = json.loads(response.data)
         self.assertIn('input', data)
+        self.assertIn('fp', data)
+        self.assertIn('bits', data)
         self.assertIn('exact_decimal', data)
+        self.assertIn('unbiased_exp', data)
         self.assertEqual(data['input'], '0.1')
-        self.assertEqual(data['exact_decimal'], '0.1')
+        self.assertEqual(data['fp'], 0.1)
+        self.assertEqual(data['bits'], '0011111110111001100110011001100110011001100110011001100110011010')
+        self.assertEqual(data['exact_decimal'], '0.1000000000000000055511151231257827021181583404541015625')
+        self.assertEqual(data['unbiased_exp'], -4)
 
     def test_exact_decimal_with_precision_issue(self):
         """Test exact decimal endpoint with a number that has precision issues"""
@@ -82,9 +88,15 @@ class EchoAppTestCase(unittest.TestCase):
         
         data = json.loads(response.data)
         self.assertIn('input', data)
+        self.assertIn('fp', data)
+        self.assertIn('bits', data)
         self.assertIn('exact_decimal', data)
+        self.assertIn('unbiased_exp', data)
         self.assertEqual(data['input'], '0.30000000000000004')
-        self.assertEqual(data['exact_decimal'], '0.30000000000000004')
+        self.assertEqual(data['fp'], 0.30000000000000004)
+        self.assertEqual(data['bits'], '0011111111010011001100110011001100110011001100110011001100110100')
+        self.assertEqual(data['exact_decimal'], '0.3000000000000000444089209850062616169452667236328125')
+        self.assertEqual(data['unbiased_exp'], -2)
 
     def test_exact_decimal_with_empty_input(self):
         """Test exact decimal endpoint with empty input"""
@@ -111,9 +123,15 @@ class EchoAppTestCase(unittest.TestCase):
         
         data = json.loads(response.data)
         self.assertIn('input', data)
+        self.assertIn('fp', data)
+        self.assertIn('bits', data)
         self.assertIn('exact_decimal', data)
+        self.assertIn('unbiased_exp', data)
         self.assertEqual(data['input'], '5')
-        self.assertEqual(data['exact_decimal'], '5.0')
+        self.assertEqual(data['fp'], 5.0)
+        self.assertEqual(data['bits'], '0100000000010100000000000000000000000000000000000000000000000000')
+        self.assertEqual(data['exact_decimal'], '5')
+        self.assertEqual(data['unbiased_exp'], 2)
 
 if __name__ == '__main__':
     unittest.main()
