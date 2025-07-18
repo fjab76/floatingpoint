@@ -144,6 +144,10 @@
                 <label for="decimal">Enter a decimal number:</label>
                 <input type="text" id="decimal" name="decimal" required placeholder="e.g., 0.1, 3.14, 0.1+0.2">
             </div>
+            <div class="form-group">
+                <label for="digits">Number of digits (n):</label>
+                <input type="number" id="digits" name="digits" required min="1" max="50" value="5" placeholder="e.g., 5">
+            </div>
             <button type="submit">Convert to Exact Decimal</button>
         </form>
         
@@ -160,6 +164,7 @@
             e.preventDefault();
             
             const decimal = document.getElementById('decimal').value.trim();
+            const digits = document.getElementById('digits').value.trim();
             const button = document.querySelector('button[type="submit"]');
             const loading = document.getElementById('loading');
             const result = document.getElementById('result');
@@ -175,6 +180,7 @@
             // Create form data
             const formData = new FormData();
             formData.append('decimal', decimal);
+            formData.append('digits', digits);
             
             // Send request to server
             fetch('/exact-decimal', {
@@ -191,15 +197,21 @@
                     result.textContent = data.error;
                 } else {
                     result.className = 'result success';
-                    result.innerHTML = `
+                    let resultHtml = `
                         <div class="result-content">
                             <strong>Input:</strong> ${data.input}<br>
+                            <strong>Number of Digits:</strong> ${data.digits}<br>
                             <strong>Floating Point Representation:</strong> ${data.fp}<br>
                             <strong>Bits Representation:</strong> ${data.bits}<br>
                             <strong>Exact Decimal:</strong> ${data.exact_decimal}<br>
-                            <strong>Unbiased Exponent:</strong> ${data.unbiased_exp}
+                            <strong>Unbiased Exponent:</strong> ${data.unbiased_exp}<br><br>
+                            <strong>${data.digits}-digit Decimal Numbers:</strong><br>
+                            <strong>Count:</strong> ${data.d_digit_count}<br>
+                            <strong>Distance:</strong> ${data.d_digit_distance}<br>
+                            <strong>List:</strong> ${data.d_digit_list.join(', ')}
                         </div>
                     `;
+                    result.innerHTML = resultHtml;
                 }
                 result.style.display = 'block';
             })
