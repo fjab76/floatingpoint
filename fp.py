@@ -83,7 +83,7 @@ class FP:
         # first d-digit number greater than the given number
         upper_d_digit_number = lower_d_digit_number + distance
 
-        getcontext().prec = d
+        getcontext().prec = d-1 if exp + dec_len == 0 else d
         numbers = []
         # checking d-digit numbers smaller than the given number
         while float(lower_d_digit_number) == self.fp:
