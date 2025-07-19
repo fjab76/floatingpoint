@@ -172,5 +172,56 @@ class EchoAppTestCase(unittest.TestCase):
         self.assertEqual(data['exact_decimal'], '5')
         self.assertEqual(data['unbiased_exp'], 2)
 
+    def test_significant_digits_with_valid_number(self):
+        """Test significant digits endpoint with valid number"""
+        response = self.app.post('/significant-digits', data={'significantNumber': '1023.99999999999988'})
+        self.assertEqual(response.status_code, 200)
+        
+        data = json.loads(response.data)
+        self.assertIn('input', data)
+        self.assertIn('significant_digits', data)
+        self.assertEqual(data['input'], '1023.99999999999988')
+        self.assertEqual(data['significant_digits'], 18)
+
+    def test_significant_digits_with_simple_decimal(self):
+        """Test significant digits endpoint with simple decimal number"""
+        response = self.app.post('/significant-digits', data={'significantNumber': '0.1'})
+        self.assertEqual(response.status_code, 200)
+        
+        data = json.loads(response.data)
+        self.assertIn('input', data)
+        self.assertIn('significant_digits', data)
+        self.assertEqual(data['input'], '0.1')
+        self.assertEqual(data['significant_digits'], 2)
+
+    def test_significant_digits_with_integer(self):
+        """Test significant digits endpoint with integer"""
+        response = self.app.post('/significant-digits', data={'significantNumber': '5'})
+        self.assertEqual(response.status_code, 200)
+        
+        data = json.loads(response.data)
+        self.assertIn('input', data)
+        self.assertIn('significant_digits', data)
+        self.assertEqual(data['input'], '5')
+        self.assertEqual(data['significant_digits'], 1)
+
+    def test_significant_digits_with_empty_input(self):
+        """Test significant digits endpoint with empty input"""
+        response = self.app.post('/significant-digits', data={'significantNumber': ''})
+        self.assertEqual(response.status_code, 400)
+        
+        data = json.loads(response.data)
+        self.assertIn('error', data)
+        self.assertEqual(data['error'], 'Please enter a decimal number')
+
+    def test_significant_digits_with_invalid_input(self):
+        """Test significant digits endpoint with invalid input"""
+        response = self.app.post('/significant-digits', data={'significantNumber': 'not a number'})
+        self.assertEqual(response.status_code, 400)
+        
+        data = json.loads(response.data)
+        self.assertIn('error', data)
+        self.assertEqual(data['error'], 'Invalid decimal number. Please enter a valid number.')
+
 if __name__ == '__main__':
     unittest.main()

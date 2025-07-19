@@ -90,6 +90,38 @@ def exact_decimal_process():
             return jsonify({'error': 'Invalid decimal number or number of digits. Please enter valid numbers.'}), 400
         return jsonify({'error': f'Error processing input: {error_msg}'}), 400
 
+@app.route('/significant-digits', methods=['POST'])
+def significant_digits_process():
+    """Process the decimal input and return the number of significant digits."""
+    # Get the decimal value from the form data
+    significant_number = request.form.get('significantNumber', '').strip()
+    
+    # Validate input
+    if not significant_number:
+        return jsonify({'error': 'Please enter a decimal number'}), 400
+    
+    try:
+        # Validate that it can be converted to float first
+        float(significant_number)
+        
+        # Calculate significant digits using FP function
+        significant_digits = FP.get_number_significant_digits(significant_number)
+        
+        print(f"Significant digits for {significant_number}: {significant_digits}")
+        return jsonify({
+            'input': significant_number,
+            'significant_digits': significant_digits
+        })
+    except ValueError as e:
+        error_msg = str(e)
+        if 'could not convert string to float' in error_msg:
+            return jsonify({'error': 'Invalid decimal number. Please enter a valid number.'}), 400
+        elif 'invalid literal' in error_msg:
+            return jsonify({'error': 'Invalid decimal number. Please enter a valid number.'}), 400
+        return jsonify({'error': f'Error processing input: {error_msg}'}), 400
+    except Exception as e:
+        return jsonify({'error': f'Error calculating significant digits: {str(e)}'}), 500
+
 if __name__ == '__main__':
     # Run the application in debug mode for development
     app.run(debug=True, host='0.0.0.0', port=8080)
