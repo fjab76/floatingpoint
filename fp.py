@@ -1,7 +1,7 @@
 """High-level functions to manipulate floating-point numbers
 """
 
-from decimal import ROUND_HALF_UP, Decimal, setcontext, Context
+from decimal import ROUND_HALF_UP, Decimal, getcontext, setcontext, Context
 from math import log2, log10, floor
 from typing import List, Tuple, Generator
 from fputil import unpack_double_precision_fp, check_infinity_or_nan, from_decimal_to_binary, next_binary_fp
@@ -83,15 +83,16 @@ class FP:
         # first d-digit number greater than the given number
         upper_d_digit_number = lower_d_digit_number + distance
 
+        getcontext().prec = d
         numbers = []
         # checking d-digit numbers smaller than the given number
         while float(lower_d_digit_number) == self.fp:
-            numbers.append(lower_d_digit_number.normalize(Context(prec=d)))
+            numbers.append(+lower_d_digit_number)
             lower_d_digit_number -= distance
-
+ 
         # checking d-digit numbers greater than the given number
         while float(upper_d_digit_number) == self.fp:
-            numbers.append(upper_d_digit_number.normalize(Context(prec=d)))
+            numbers.append(+upper_d_digit_number)
             upper_d_digit_number += distance
 
         return (len(numbers), distance, sorted(numbers))
@@ -298,9 +299,9 @@ if __name__ == "__main__":
     # print(normalise_to_significant_digits(72057594037927956, 16))
     # print(normalise_to_significant_digits(0.0454, 1))
     # print(FP.from_float(1023.99999999999988))
-    print(FP.from_float(0.1))
-    # print(FP.from_decimal(Decimal(0.1)).get_d_digit_decimals(18))
-    # print(FP.get_number_significant_digits("1023.999999999999887"))
+    # print(FP.from_float(0.1))
+    print(FP.from_decimal(Decimal(0.1)).get_d_digit_decimals(18))
+    print(FP.get_number_significant_digits("1023.99999999999988"))
 
     # decimal = 72057594037927945
     # binary_val = to_double_precision_floating_point_binary(decimal)[0]
@@ -316,3 +317,7 @@ if __name__ == "__main__":
     # print_decimal(FP.from_float(1.1))
     # print_decimal(FP.from_float(1023.9999999999999))
     # print_decimal(FP.from_float(72057594037927945))
+    # 0.100000000000000000
+    # 72057594037927945
+    # 0.010000000000000000
+    # 0.10000000000000000
