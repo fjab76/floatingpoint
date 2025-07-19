@@ -154,6 +154,32 @@
         <div class="loading" id="loading">Processing your request...</div>
         <div class="result" id="result"></div>
         
+        <!-- Significant Digits Section -->
+        <div style="margin-top: 40px; padding-top: 30px; border-top: 2px solid #eee;">
+            <h2 style="color: #333; margin-bottom: 20px;">Significant Digits Calculator</h2>
+            <p>Enter a decimal number to find out how many significant digits it has:</p>
+            
+            <div class="example">
+                <h3>What are significant digits?</h3>
+                <p>The number of significant digits is the minimum amount of digits needed to uniquely identify a floating-point number. For example:</p>
+                <ul>
+                    <li><code>1023.99999999999988</code> has 18 significant digits</li>
+                    <li><code>0.1</code> might have fewer significant digits than you expect</li>
+                </ul>
+            </div>
+            
+            <form id="significantForm">
+                <div class="form-group">
+                    <label for="significantNumber">Enter a decimal number:</label>
+                    <input type="text" id="significantNumber" name="significantNumber" required placeholder="e.g., 1023.99999999999988, 0.1, 3.14159">
+                </div>
+                <button type="submit">Calculate Significant Digits</button>
+            </form>
+            
+            <div class="loading" id="significantLoading" style="display: none;">Calculating significant digits...</div>
+            <div class="result" id="significantResult"></div>
+        </div>
+
         <div class="navigation">
             <a href="/">← Back to Echo Application</a>
         </div>
@@ -209,6 +235,63 @@
                             <strong>Count:</strong> ${data.d_digit_count}<br>
                             <strong>Distance:</strong> ${data.d_digit_distance}<br>
                             <strong>List:</strong><br>${data.d_digit_list.map(num => `&nbsp;&nbsp;${num}`).join('<br>')}
+                        </div>
+                    `;
+                    result.innerHTML = resultHtml;
+                }
+                result.style.display = 'block';
+            })
+            .catch(error => {
+                loading.style.display = 'none';
+                button.disabled = false;
+                result.className = 'result error';
+                result.textContent = 'An error occurred. Please try again.';
+                result.style.display = 'block';
+                console.error('Error:', error);
+            });
+        });
+        
+        // Significant Digits Form Handler
+        document.getElementById('significantForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const significantNumber = document.getElementById('significantNumber').value.trim();
+            const button = document.querySelector('#significantForm button[type="submit"]');
+            const loading = document.getElementById('significantLoading');
+            const result = document.getElementById('significantResult');
+            
+            // Clear previous results
+            result.style.display = 'none';
+            result.className = 'result';
+            
+            // Show loading state
+            loading.style.display = 'block';
+            button.disabled = true;
+            
+            // Create form data
+            const formData = new FormData();
+            formData.append('significantNumber', significantNumber);
+            
+            // Send request to server
+            fetch('/significant-digits', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                loading.style.display = 'none';
+                button.disabled = false;
+                
+                if (data.error) {
+                    result.className = 'result error';
+                    result.textContent = data.error;
+                } else {
+                    result.className = 'result success';
+                    let resultHtml = `
+                        <div class="result-content">
+                            <strong>Input:</strong> ${data.input}<br>
+                            <strong>Number of Significant Digits:</strong> ${data.significant_digits}<br><br>
+                            <p>This means that <strong>${data.significant_digits} digits</strong> are required to uniquely identify this floating-point number.</p>
                         </div>
                     `;
                     result.innerHTML = resultHtml;
