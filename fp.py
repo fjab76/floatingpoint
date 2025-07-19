@@ -66,7 +66,7 @@ class FP:
             tuple[int, Decimal, list[Decimal]]: number of d-digit decimal numbers that map to the given double-precision floating-point number, 
             the distance between consecutive d-digit numbers, and the list of numbers
         """
-        _, digits, exp = self.exact_decimal.normalize().as_tuple()
+        _, digits, exp = self.exact_decimal.as_tuple()
         match exp:
             case str(exp):
                 raise ValueError("dec must be a finite number")
