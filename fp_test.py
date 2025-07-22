@@ -1,4 +1,3 @@
-import imp
 import pytest
 from fp import *
 # from sp_fp import *
@@ -109,3 +108,114 @@ def test_segment_from_exponent(data, expected):
 )
 def test_segment_from_fp(data, expected):
     assert Segment.from_fp(*data) == expected
+
+
+@pytest.mark.parametrize(
+    "value,d,expected_count,expected_distance,expected_numbers",
+    [        
+        (
+            0.1, # value
+            17, # num significant digits
+            2, # count
+            Decimal('1E-17'), # distance
+            [
+                Decimal('0.10000000000000000'),
+                Decimal('0.10000000000000001')
+            ]
+        ), 
+        (
+            0.01, # value
+            17, # num significant digits
+            2, # count
+            Decimal('1E-18'), # distance
+            [
+                Decimal('0.010000000000000000'),
+                Decimal('0.010000000000000001')
+            ]
+        ), 
+        (
+            1.1, # value
+            17, # num significant digits
+            2, # count
+            Decimal('1E-16'), # distance
+            [
+                Decimal('1.1000000000000000'),
+                Decimal('1.1000000000000001')
+            ]
+        ),           
+        (
+            1023.99999999999983, # value
+            18, # num significant digits
+            12, # count
+            Decimal('1E-14'), # distance
+            [
+                Decimal('1023.99999999999983'),
+                Decimal('1023.99999999999984'),
+                Decimal('1023.99999999999985'),
+                Decimal('1023.99999999999986'),
+                Decimal('1023.99999999999987'),
+                Decimal('1023.99999999999988'),
+                Decimal('1023.99999999999989'),
+                Decimal('1023.99999999999990'),
+                Decimal('1023.99999999999991'),
+                Decimal('1023.99999999999992'),
+                Decimal('1023.99999999999993'),
+                Decimal('1023.99999999999994')
+            ]
+        ),        
+        (
+            72057594037927945, # value
+            17, # num significant digits
+            15, # count
+            1, # distance            
+            [
+                Decimal('72057594037927945'),
+                Decimal('72057594037927946'),
+                Decimal('72057594037927947'),
+                Decimal('72057594037927948'),
+                Decimal('72057594037927949'),
+                Decimal('72057594037927950'),
+                Decimal('72057594037927951'),
+                Decimal('72057594037927952'),
+                Decimal('72057594037927953'),
+                Decimal('72057594037927954'),
+                Decimal('72057594037927955'),
+                Decimal('72057594037927956'),
+                Decimal('72057594037927957'),
+                Decimal('72057594037927958'),
+                Decimal('72057594037927959')
+            ]
+        ),
+        (
+            72057594037927945, # value
+            16, # num significant digits
+            1, # count
+            10, # distance            
+            [
+                Decimal('7.205759403792795E+16')
+            ]
+        )
+    ]
+)
+def test_get_d_digit_decimals(value, d, expected_count, expected_distance, expected_numbers):
+    fp = FP.from_float(value)
+    count, distance, numbers = fp.get_d_digit_decimals(d)
+    assert count == expected_count
+    assert distance == expected_distance
+    # Compare as strings to avoid Decimal context/precision issues
+    assert [str(n) for n in numbers] == [str(n) for n in expected_numbers]
+
+
+def test_get_d_digit_decimals_invalid_decimal():
+    class DummyFP(FP):
+        def __init__(self):
+            # exp as string to trigger ValueError
+            self.fp = 1.0
+            self.bits = "0" * 64
+            self.exact_decimal = Decimal("NaN")
+            self.unbiased_exp = 0
+
+    dummy = DummyFP()
+    with pytest.raises(ValueError, match="dec must be a finite number"):
+        dummy.get_d_digit_decimals(5)
+

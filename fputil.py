@@ -108,3 +108,18 @@ def next_binary_fp(strbits: str) -> str:
     bits[12:] = fraction_bits
     bits[1:12] = exponent_bits
     return "".join([str(e) for e in bits])
+
+
+def zero_last_n_elements(l: tuple[int, ...], n: int) -> tuple[int, ...]:
+    """Set the last n elements of the given tuple to zero
+
+    Args:
+        l (tuple[int, ...]): tuple of integers
+        n (int): number of elements to set to zero
+
+    Returns:
+        tuple[int, ...]: modified tuple with last n elements set to zero
+    """
+    if n < 0 or n > len(l):
+        raise ValueError("n must be between 0 and the number of elements in the tuple")
+    return l[:-n] + (0,) * n if n > 0 else l

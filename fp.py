@@ -4,7 +4,7 @@
 from decimal import ROUND_HALF_UP, Decimal, getcontext, setcontext, Context
 from math import log2, log10, floor
 from typing import List, Tuple, Generator
-from fputil import unpack_double_precision_fp, check_infinity_or_nan, from_decimal_to_binary, next_binary_fp
+from fputil import unpack_double_precision_fp, check_infinity_or_nan, from_decimal_to_binary, next_binary_fp, zero_last_n_elements
 
 setcontext(Context(prec=400, rounding=ROUND_HALF_UP))
 
@@ -60,13 +60,13 @@ class FP:
 
         Args:
             fp (FP): double-precision floating-point number
-            d (int): number of significant digits to be considered
+            d (int): number of significant digits (thus leading zeros not included) to be considered
 
         Returns:
             tuple[int, Decimal, list[Decimal]]: number of d-digit decimal numbers that map to the given double-precision floating-point number, 
             the distance between consecutive d-digit numbers, and the list of numbers
         """
-        _, digits, exp = self.exact_decimal.as_tuple()
+        sign, digits, exp = self.exact_decimal.as_tuple()
         match exp:
             case str(exp):
                 raise ValueError("dec must be a finite number")
@@ -74,22 +74,24 @@ class FP:
                 exp = int(exp)
 
         dec_len = len(digits)
+
+        # when exp + dec_len <=0, then exp + dec_len - 1 is the number of leading zeros
+        number_significant_digits_before_decimal_point = exp + dec_len
         # distance between consecutive d-digit numbers
-        # when dec_len == -exp, the leading 0 is dropped, so we need to adjust the distance accordingly
-        distance = Decimal(10)**(exp + dec_len - (d-1 if exp + dec_len == 0 else d))
+        distance = Decimal(10)**(number_significant_digits_before_decimal_point - d)
 
         # first d-digit number smaller than the given number
-        lower_d_digit_number = Decimal(f"{str(self.exact_decimal)[:(d if exp >= 0 else d+1)]}{'0' * (dec_len - d)}")
+        lower_d_digit_number = Decimal((sign, zero_last_n_elements(digits, dec_len - d), exp))
         # first d-digit number greater than the given number
         upper_d_digit_number = lower_d_digit_number + distance
 
-        getcontext().prec = d-1 if exp + dec_len == 0 else d
+        getcontext().prec = d
         numbers = []
         # checking d-digit numbers smaller than the given number
         while float(lower_d_digit_number) == self.fp:
             numbers.append(+lower_d_digit_number)
             lower_d_digit_number -= distance
- 
+
         # checking d-digit numbers greater than the given number
         while float(upper_d_digit_number) == self.fp:
             numbers.append(+upper_d_digit_number)
@@ -100,7 +102,7 @@ class FP:
     @staticmethod
     def get_number_significant_digits(decimal: str) -> int:
         """Return the number of significant digits of a decimal number.
-        
+
         Precision of an individual decimal number defined as the minimum amount of digits to identify its floating-point number.
 
         Recursive implementation: on each iteration, the number of digits is reduced by one until the resulting decimal number
@@ -126,7 +128,6 @@ class FP:
             return d + 1
 
         return truncate(Decimal(decimal), len(decimal))
-
 
     @staticmethod
     def from_decimal(dec: Decimal) -> "FP":
@@ -274,9 +275,11 @@ def is_segment_precision(start: Decimal, end: Decimal, d: int) -> bool:
     print(f"{num_mapped_decimals} {d}-digit decimals mapped to {current_fp.exact_decimal.normalize()}")
     return False
 
+
 def print_decimal(fp: FP) -> None:
     _, digits, exp = fp.exact_decimal.normalize().as_tuple()
     print(f"Decimal: {fp.exact_decimal}, digits: {digits}, exp: {exp}, len(digits): {len(digits)}")
+
 
 if __name__ == "__main__":
     # print(mpf(7.1))
@@ -300,8 +303,8 @@ if __name__ == "__main__":
     # print(normalise_to_significant_digits(0.0454, 1))
     # print(FP.from_float(1023.99999999999988))
     # print(FP.from_float(0.1))
-    print(FP.from_decimal(Decimal(0.1)).get_d_digit_decimals(18))
-    print(FP.get_number_significant_digits("1023.99999999999988"))
+    print(FP.from_decimal(Decimal(72057594037927956)).get_d_digit_decimals(18))
+    # print(FP.get_number_significant_digits("1023.99999999999988"))
 
     # decimal = 72057594037927945
     # binary_val = to_double_precision_floating_point_binary(decimal)[0]
