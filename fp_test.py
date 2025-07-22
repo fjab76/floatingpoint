@@ -115,7 +115,7 @@ def test_segment_from_fp(data, expected):
     [        
         (
             0.1, # value
-            18, # num digits
+            17, # num significant digits
             2, # count
             Decimal('1E-17'), # distance
             [
@@ -125,7 +125,7 @@ def test_segment_from_fp(data, expected):
         ), 
         (
             0.01, # value
-            17, # num digits
+            17, # num significant digits
             2, # count
             Decimal('1E-18'), # distance
             [
@@ -135,7 +135,7 @@ def test_segment_from_fp(data, expected):
         ), 
         (
             1.1, # value
-            17, # num digits
+            17, # num significant digits
             2, # count
             Decimal('1E-16'), # distance
             [
@@ -145,7 +145,7 @@ def test_segment_from_fp(data, expected):
         ),           
         (
             1023.99999999999983, # value
-            18, # num digits
+            18, # num significant digits
             12, # count
             Decimal('1E-14'), # distance
             [
@@ -165,7 +165,7 @@ def test_segment_from_fp(data, expected):
         ),        
         (
             72057594037927945, # value
-            17, # num digits
+            17, # num significant digits
             15, # count
             1, # distance            
             [
@@ -188,7 +188,7 @@ def test_segment_from_fp(data, expected):
         ),
         (
             72057594037927945, # value
-            16, # num digits
+            16, # num significant digits
             1, # count
             10, # distance            
             [
