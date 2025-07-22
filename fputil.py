@@ -122,4 +122,4 @@ def zero_last_n_elements(l: tuple[int, ...], n: int) -> tuple[int, ...]:
     """
     if n < 0 or n > len(l):
         raise ValueError("n must be between 0 and the number of elements in the tuple")
-    return tuple(list(l[:-n]) + [0] * n if n > 0 else list(l))
+    return l[:-n] + (0,) * n if n > 0 else l
