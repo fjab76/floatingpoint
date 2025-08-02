@@ -74,6 +74,8 @@ class FP:
                 exp = int(exp)
 
         dec_len = len(digits)
+        if dec_len < d:
+            raise ValueError(f"Number of specified digits {d} must be less than the number of digits {dec_len} in the exact decimal representation of the floating-point number {self.exact_decimal}")
 
         # when exp + dec_len <=0, then exp + dec_len - 1 is the number of leading zeros
         number_significant_digits_before_decimal_point = exp + dec_len
