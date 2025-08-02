@@ -172,5 +172,97 @@ class EchoAppTestCase(unittest.TestCase):
         self.assertEqual(data['exact_decimal'], '5')
         self.assertEqual(data['unbiased_exp'], 2)
 
+    def test_floating_point_enumeration_page(self):
+        """Test that the floating point enumeration page loads correctly"""
+        response = self.app.get('/floating-point-enumeration')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'Floating Point Enumeration', response.data)
+        self.assertIn(b'Enter a decimal number (seed):', response.data)
+
+    def test_floating_point_enumeration_with_valid_input(self):
+        """Test floating point enumeration endpoint with valid input"""
+        response = self.app.post('/floating-point-enumeration', data={'decimal': '1.0', 'count': '3'})
+        self.assertEqual(response.status_code, 200)
+        
+        data = json.loads(response.data)
+        self.assertIn('input', data)
+        self.assertIn('count', data)
+        self.assertIn('starting_fp', data)
+        self.assertIn('starting_exact_decimal', data)
+        self.assertIn('results', data)
+        self.assertEqual(data['input'], '1.0')
+        self.assertEqual(data['count'], 3)
+        self.assertEqual(data['starting_fp'], 1.0)
+        self.assertEqual(data['starting_exact_decimal'], '1')
+        self.assertEqual(len(data['results']), 3)
+        
+        # Check first result
+        first_result = data['results'][0]
+        self.assertEqual(first_result['index'], 1)
+        self.assertEqual(first_result['fp'], 1.0)
+        self.assertEqual(first_result['exact_decimal'], '1')
+        
+        # Check second result (next floating point number)
+        second_result = data['results'][1]
+        self.assertEqual(second_result['index'], 2)
+        self.assertEqual(second_result['fp'], 1.0000000000000002)
+        self.assertEqual(second_result['exact_decimal'], '1.0000000000000002220446049250313080847263336181640625')
+
+    def test_floating_point_enumeration_with_empty_decimal(self):
+        """Test floating point enumeration endpoint with empty decimal input"""
+        response = self.app.post('/floating-point-enumeration', data={'decimal': '', 'count': '5'})
+        self.assertEqual(response.status_code, 400)
+        
+        data = json.loads(response.data)
+        self.assertIn('error', data)
+        self.assertEqual(data['error'], 'Please enter a decimal number')
+
+    def test_floating_point_enumeration_with_empty_count(self):
+        """Test floating point enumeration endpoint with empty count"""
+        response = self.app.post('/floating-point-enumeration', data={'decimal': '1.0', 'count': ''})
+        self.assertEqual(response.status_code, 400)
+        
+        data = json.loads(response.data)
+        self.assertIn('error', data)
+        self.assertEqual(data['error'], 'Please enter the number of consecutive floating point numbers')
+
+    def test_floating_point_enumeration_with_invalid_count(self):
+        """Test floating point enumeration endpoint with invalid count range"""
+        response = self.app.post('/floating-point-enumeration', data={'decimal': '1.0', 'count': '150'})
+        self.assertEqual(response.status_code, 400)
+        
+        data = json.loads(response.data)
+        self.assertIn('error', data)
+        self.assertEqual(data['error'], 'Number of consecutive floating point numbers must be between 1 and 100')
+
+    def test_floating_point_enumeration_with_invalid_decimal(self):
+        """Test floating point enumeration endpoint with invalid decimal input"""
+        response = self.app.post('/floating-point-enumeration', data={'decimal': 'not a number', 'count': '5'})
+        self.assertEqual(response.status_code, 400)
+        
+        data = json.loads(response.data)
+        self.assertIn('error', data)
+        self.assertEqual(data['error'], 'Invalid decimal number or count. Please enter valid numbers.')
+
+    def test_floating_point_enumeration_with_different_seed(self):
+        """Test floating point enumeration endpoint with different seed value"""
+        response = self.app.post('/floating-point-enumeration', data={'decimal': '0.1', 'count': '2'})
+        self.assertEqual(response.status_code, 200)
+        
+        data = json.loads(response.data)
+        self.assertEqual(data['input'], '0.1')
+        self.assertEqual(data['count'], 2)
+        self.assertEqual(data['starting_fp'], 0.1)
+        self.assertEqual(len(data['results']), 2)
+        
+        # Check that results are consecutive floating point numbers
+        first_result = data['results'][0]
+        second_result = data['results'][1]
+        self.assertEqual(first_result['index'], 1)
+        self.assertEqual(second_result['index'], 2)
+        self.assertEqual(first_result['fp'], 0.1)
+        # The next floating point number after 0.1
+        self.assertNotEqual(first_result['fp'], second_result['fp'])
+
 if __name__ == '__main__':
     unittest.main()

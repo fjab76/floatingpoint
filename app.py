@@ -8,7 +8,8 @@ which composes a greeting and returns it to be displayed.
 
 from flask import Flask, render_template, request, jsonify
 import os
-from fp import FP
+from fp import FP, next_n_binary_fp
+from decimal import Decimal
 
 app = Flask(__name__)
 
@@ -89,6 +90,69 @@ def exact_decimal_process():
         elif 'invalid literal' in error_msg:
             return jsonify({'error': 'Invalid decimal number or number of digits. Please enter valid numbers.'}), 400
         return jsonify({'error': f'Error processing input: {error_msg}'}), 400
+
+@app.route('/floating-point-enumeration')
+def floating_point_enumeration_form():
+    """Serve the floating point enumeration form page."""
+    return render_template('floating_point_enumeration.html')
+
+@app.route('/floating-point-enumeration', methods=['POST'])
+def floating_point_enumeration_process():
+    """Process the decimal seed and count, return consecutive floating point numbers."""
+    # Get the values from the form data
+    decimal_input = request.form.get('decimal', '').strip()
+    count_input = request.form.get('count', '').strip()
+    
+    # Validate input
+    if not decimal_input:
+        return jsonify({'error': 'Please enter a decimal number'}), 400
+    
+    if not count_input:
+        return jsonify({'error': 'Please enter the number of consecutive floating point numbers'}), 400
+    
+    try:
+        # Convert to float and int
+        float_value = float(decimal_input)
+        count_value = int(count_input)
+        
+        # Validate count range
+        if count_value < 1 or count_value > 100:
+            return jsonify({'error': 'Number of consecutive floating point numbers must be between 1 and 100'}), 400
+        
+        # Create FP object from decimal input
+        start_fp = FP.from_float(float_value)
+        
+        # Get next n consecutive floating point numbers
+        fp_numbers = next_n_binary_fp(start_fp, count_value)
+        
+        # Convert to list of formatted results
+        results = []
+        for i, fp in enumerate(fp_numbers):
+            results.append({
+                'index': i + 1,
+                'fp': fp.fp,
+                'exact_decimal': str(fp.exact_decimal),
+                'bits': fp.bits,
+                'unbiased_exp': fp.unbiased_exp
+            })
+        
+        print(f"Generated {count_value} consecutive floating point numbers starting from {decimal_input}")
+        return jsonify({
+            'input': decimal_input,
+            'count': count_value,
+            'starting_fp': start_fp.fp,
+            'starting_exact_decimal': str(start_fp.exact_decimal),
+            'results': results
+        })
+    except ValueError as e:
+        error_msg = str(e)
+        if 'could not convert string to float' in error_msg:
+            return jsonify({'error': 'Invalid decimal number or count. Please enter valid numbers.'}), 400
+        elif 'invalid literal' in error_msg:
+            return jsonify({'error': 'Invalid decimal number or count. Please enter valid numbers.'}), 400
+        return jsonify({'error': f'Error processing input: {error_msg}'}), 400
+    except Exception as e:
+        return jsonify({'error': f'Error processing input: {str(e)}'}), 400
 
 if __name__ == '__main__':
     # Run the application in debug mode for development
