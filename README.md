@@ -1,35 +1,24 @@
-# Echo Web Application
+# Floatingpoint
 
-A simple web application that demonstrates the client-server model. Users can enter their name through a web form, and the server returns a personalized greeting.
+A small Flask app that explains **IEEE-754 binary64** (double-precision): exact value of a float, how decimal literals map to bits, and **binade / ULP** spacing. It is meant to complement reading about floating-point and to contrast **when `float` is appropriate** (performance, tolerant numerics) **vs arbitrary precision** such as Python’s `Decimal` (money, controlled decimal rounding).
 
 ## Features
 
-- Clean, responsive web interface
-- Client-server architecture using Flask
-- Form validation and error handling
-- Real-time greeting display without page reload
-- Modern styling with CSS
+- **Home** — mission, float vs `Decimal` guidance, links to tools
+- **Exact value** — `FP.from_float`, exact rational decimal, d-digit decimal strings that round to the same float
+- **Segment / ULP** — unbiased exponent band, segment bounds, exact ULP as decimal
 
 ## Requirements
 
-- **Python 3.11** (or any **3.10+**; the codebase uses `match` / `case`)
-- Flask 3.0.0 (installed via `requirements.txt`)
+- **Python 3.11** (or **3.10+**; the codebase uses `match` / `case`)
+- Flask (see `requirements.txt`)
 
 ## Installation
 
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   cd floatingpoint
-   ```
+1. Clone the repository and enter the project directory.
 
-2. Install Python 3.11 with [Homebrew](https://brew.sh) (macOS):
-   ```bash
-   brew install python@3.11
-   ```
-   If `python3.11` is not found, follow the **Caveats** Homebrew prints (often add Homebrew’s `python@3.11` `bin` directory to your `PATH`, or use `brew link python@3.11` if suggested).
+2. Create and activate a virtual environment, then install dependencies:
 
-3. Create and use a virtual environment, then install dependencies:
    ```bash
    python3.11 -m venv .venv
    source .venv/bin/activate
@@ -39,51 +28,37 @@ A simple web application that demonstrates the client-server model. Users can en
 
 ## Running tests
 
-With the virtual environment activated (`source .venv/bin/activate`):
+With the virtual environment activated:
 
-1. Run pytest:
-   ```bash
-   pytest test_app.py
-   ```
+```bash
+pytest test_app.py
+```
 
-2. Or run the unittest suite:
-   ```bash
-   python -m unittest test_app.py -v
-   ```
+or:
 
-## Running the Application
+```bash
+python -m unittest test_app.py -v
+```
 
-1. Start the Flask server (with the virtual environment activated):
-   ```bash
-   python app.py
-   ```
+## Running the application
 
-2. Open your web browser and navigate to:
-   ```
-   http://localhost:8080
-   ```
+```bash
+python app.py
+```
 
-3. Enter your name in the text field and click "Get Greeting" to receive a personalized message.
+Open [http://localhost:8080](http://localhost:8080).
 
-## How it Works
+## Routes
 
-1. **Client**: The web page (`templates/index.html`) contains a form with a text field for name input
-2. **Server**: The Flask application (`app.py`) processes the form submission:
-   - Validates the input
-   - Composes a personalized greeting
-   - Returns the greeting as JSON
-3. **Display**: JavaScript updates the page to show the greeting without requiring a page reload
+| Path | Purpose |
+|------|---------|
+| `GET /` | Home |
+| `GET` / `POST /exact-decimal` | Exact value tool (form + JSON) |
+| `GET` / `POST /segment` | Segment / ULP tool (form + JSON) |
 
 ## Architecture
 
-- **Frontend**: HTML5, CSS3, and JavaScript for the user interface
-- **Backend**: Python Flask server handling requests and responses
-- **Communication**: HTTP POST requests with JSON responses
+- **Core logic**: `fp.py`, `fputil.py`
+- **Web**: `app.py`, templates under `templates/`
 
-## Screenshots
-
-![Initial Form](https://github.com/user-attachments/assets/eaa10df1-b943-487e-ba34-fba4fadf1593)
-*Initial form where users enter their name*
-
-![Greeting Response](https://github.com/user-attachments/assets/c58ee7b1-3b09-4332-862f-05884e05548d)
-*Personalized greeting displayed after form submission*
+API-style responses expose only what is needed for FP insight (e.g. `fp`, `bits`, `exact_decimal`, `unbiased_exp` where applicable; segment adds `min_val`, `max_val`, `distance`).

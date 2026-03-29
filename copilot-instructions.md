@@ -22,8 +22,8 @@ Welcome to the `floatingpoint` project! This document provides guidelines and be
 
 - Main floating-point logic is in `fp.py`.
 - Utility functions are imported from `fputil.py`.
-- Web interface and API logic should be placed in a dedicated backend file (e.g., `app.py`).
-- Frontend templates (if any) should be placed in a `templates/` directory.
+- Web interface and API logic live in `app.py` (Flask): home, `/exact-decimal`, `/segment` (Segment / ULP).
+- Frontend templates live in `templates/` (Jinja base: `base.html`).
 
 ---
 
@@ -58,6 +58,7 @@ Welcome to the `floatingpoint` project! This document provides guidelines and be
   - `bits`: the binary representation
   - `exact_decimal`: the exact decimal value
   - `unbiased_exp`: the unbiased exponent
+- For segment / ULP responses, include string forms of `min_val`, `max_val`, and `distance` (ULP), plus `unbiased_exp`.
 
 ---
 

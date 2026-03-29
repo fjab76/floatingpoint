@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Floatingpoint{% endblock %} — IEEE-754 doubles</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        nav.site-nav {
+            background-color: #fff;
+            padding: 12px 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            margin-bottom: 24px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px 16px;
+        }
+        nav.site-nav .brand {
+            font-weight: bold;
+            color: #333;
+            text-decoration: none;
+            margin-right: auto;
+        }
+        nav.site-nav a {
+            color: #2e7d32;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        nav.site-nav a:hover {
+            text-decoration: underline;
+        }
+        nav.site-nav a.active {
+            font-weight: bold;
+            color: #1b5e20;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        input[type="text"]:focus, input[type="number"]:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+        .result.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .result.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .loading {
+            text-align: center;
+            color: #666;
+            display: none;
+        }
+        .example {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #4CAF50;
+        }
+        .example h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .example code {
+            background-color: #e9ecef;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        .result-content {
+            word-break: break-all;
+            line-height: 1.6;
+        }
+        .result-content strong {
+            display: inline-block;
+            margin-top: 8px;
+            margin-bottom: 2px;
+        }
+        .result-content strong:first-child {
+            margin-top: 0;
+        }
+        .mission ul, .mission p {
+            line-height: 1.55;
+            color: #444;
+        }
+        .tool-list {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0 0 0;
+        }
+        .tool-list li {
+            margin-bottom: 12px;
+        }
+        .tool-list a {
+            color: #2e7d32;
+            font-weight: bold;
+        }
+        {% block extra_css %}{% endblock %}
+    </style>
+</head>
+<body>
+    <nav class="site-nav" aria-label="Main">
+        <a class="brand" href="{{ url_for('index') }}">Floatingpoint</a>
+        <a href="{{ url_for('index') }}" {% if nav_active == 'home' %}class="active"{% endif %}>Home</a>
+        <a href="{{ url_for('exact_decimal_form') }}" {% if nav_active == 'exact_decimal' %}class="active"{% endif %}>Exact value</a>
+        <a href="{{ url_for('segment_form') }}" {% if nav_active == 'segment' %}class="active"{% endif %}>Segment / ULP</a>
+    </nav>
+
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

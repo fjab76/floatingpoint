@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Segment / ULP{% endblock %}
+{% block content %}
+<h1>Segment / ULP</h1>
+<p>Each normal double with a given unbiased exponent lies in a <strong>binade</strong>: a half-open interval
+    <code>[2<sup>e</sup>, 2<sup>e+1</sup>)</code> (for positive numbers; sign is handled separately). Within that
+    band, adjacent floats are evenly spaced. That spacing is one <strong>ULP</strong> (unit in the last place)
+    for numbers in the segment — shown below as an exact decimal.</p>
+<p>ULP grows with magnitude: you have the same 53-bit precision, but the <em>gap</em> between neighbors scales
+    with <code>2<sup>e</sup></code>. For more on the exact value of one float, see
+    <a href="{{ url_for('exact_decimal_form') }}">Exact value</a>.</p>
+
+<form id="segmentForm">
+    <div class="form-group">
+        <label for="decimal">Number:</label>
+        <input type="text" id="decimal" name="decimal" required placeholder="e.g., 1.0, 0.1, 1024">
+    </div>
+    <button type="submit">Show segment</button>
+</form>
+
+<div class="loading" id="loading">Processing your request...</div>
+<div class="result" id="result"></div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('segmentForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const decimal = document.getElementById('decimal').value.trim();
+        const button = document.querySelector('#segmentForm button[type="submit"]');
+        const loading = document.getElementById('loading');
+        const result = document.getElementById('result');
+        result.style.display = 'none';
+        result.className = 'result';
+        loading.style.display = 'block';
+        button.disabled = true;
+        const formData = new FormData();
+        formData.append('decimal', decimal);
+        fetch('/segment', { method: 'POST', body: formData })
+            .then(response => response.json())
+            .then(data => {
+                loading.style.display = 'none';
+                button.disabled = false;
+                if (data.error) {
+                    result.className = 'result error';
+                    result.textContent = data.error;
+                } else {
+                    result.className = 'result success';
+                    result.innerHTML = `
+                        <div class="result-content">
+                            <strong>Input:</strong> ${data.input}<br>
+                            <strong>Float (Python):</strong> ${data.fp}<br>
+                            <strong>Unbiased exponent (segment e):</strong> ${data.unbiased_exp}<br>
+                            <strong>Segment min (exact decimal):</strong> ${data.min_val}<br>
+                            <strong>Segment max (exact decimal):</strong> ${data.max_val}<br>
+                            <strong>ULP / spacing (exact decimal):</strong> ${data.distance}
+                        </div>
+                    `;
+                }
+                result.style.display = 'block';
+            })
+            .catch(() => {
+                loading.style.display = 'none';
+                button.disabled = false;
+                result.className = 'result error';
+                result.textContent = 'An error occurred. Please try again.';
+                result.style.display = 'block';
+            });
+    });
+</script>
+{% endblock %}
