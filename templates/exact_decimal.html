@@ -1,9 +1,158 @@
 {% extends "base.html" %}
 {% block title %}Exact value{% endblock %}
+{% block extra_css %}
+        .fp-schematic {
+            margin: 16px 0 0 0;
+            padding: 8px 0 0 0;
+            border-top: 1px solid #dee2e6;
+        }
+        .fp-schematic svg {
+            display: block;
+            max-width: 520px;
+            margin: 0 auto;
+        }
+        .catchment-diagram {
+            margin: 16px 0;
+            padding: 12px;
+            background: #fff;
+            border-radius: 6px;
+            border: 1px solid #c3e6cb;
+        }
+        .catchment-diagram-caption {
+            margin: 0 0 10px 0;
+            font-size: 13px;
+            color: #155724;
+            line-height: 1.45;
+        }
+        .catchment-diagram svg {
+            display: block;
+            margin: 0 auto;
+        }
+        .fp-schematic-grid {
+            margin-top: 20px;
+            padding-top: 12px;
+            border-top: 1px solid #dee2e6;
+        }
+        .fp-schematic-grid figcaption {
+            margin: 10px 0 0 0;
+            font-size: 12px;
+            color: #444;
+            line-height: 1.5;
+            max-width: 520px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+{% endblock %}
 {% block content %}
 <h1>Exact value and d-digit decimals</h1>
 <p>Enter a number (parsed as a Python/IEEE-754 double). The server shows the exact rational decimal for that float
     and which <em>d</em>-digit decimal strings round to the same value.</p>
+
+<div class="example">
+    <h3>One float, many decimal spellings</h3>
+    <p>Parsing a decimal string gives exactly one double, but the reverse is not unique: the <em>same</em> IEEE-754
+        binary64 value can be written as many different decimal literals, because conversion rounds to the nearest
+        representable float. So the “exact” value of a float is a single rational in the machine, while humans still
+        have more than one spelling at a given precision.</p>
+    <p>Below you choose how many <em>significant</em> decimal digits (<em>d</em>) to use; the tool then lists every
+        <em>d</em>-digit decimal (in that sense) that maps to your float. That is why the count can be greater than one.</p>
+    <figure class="fp-schematic" aria-label="Schematic: sparse representable floats on a line, with one rounding interval">
+        <svg viewBox="0 0 520 130" width="100%" height="130" role="img" aria-hidden="true">
+            <defs>
+                <marker id="arrowhead" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+                    <polygon points="0 0, 8 4, 0 8" fill="#555"/>
+                </marker>
+            </defs>
+            <text x="260" y="18" text-anchor="middle" fill="#333" font-size="13" font-family="Arial, sans-serif">
+                Representable floats are isolated points; decimals round into an interval
+            </text>
+            <line x1="40" y1="72" x2="480" y2="72" stroke="#888" stroke-width="2" marker-end="url(#arrowhead)"/>
+            <text x="260" y="92" text-anchor="middle" fill="#666" font-size="11" font-family="Arial, sans-serif">real number line (conceptual)</text>
+            <!-- sparse float ticks -->
+            <line x1="70" y1="58" x2="70" y2="86" stroke="#1b5e20" stroke-width="2"/>
+            <line x1="150" y1="58" x2="150" y2="86" stroke="#1b5e20" stroke-width="2"/>
+            <line x1="260" y1="52" x2="260" y2="92" stroke="#0d47a1" stroke-width="3"/>
+            <line x1="370" y1="58" x2="370" y2="86" stroke="#1b5e20" stroke-width="2"/>
+            <line x1="450" y1="58" x2="450" y2="86" stroke="#1b5e20" stroke-width="2"/>
+            <rect x="210" y="48" width="100" height="48" fill="#4CAF50" fill-opacity="0.2" stroke="#2e7d32" stroke-width="1" stroke-dasharray="4 3"/>
+            <text x="260" y="42" text-anchor="middle" fill="#0d47a1" font-size="11" font-weight="bold" font-family="Arial, sans-serif">this float</text>
+            <text x="70" y="104" text-anchor="middle" fill="#1b5e20" font-size="10" font-family="Arial, sans-serif">float</text>
+            <text x="150" y="104" text-anchor="middle" fill="#1b5e20" font-size="10" font-family="Arial, sans-serif">float</text>
+            <text x="370" y="104" text-anchor="middle" fill="#1b5e20" font-size="10" font-family="Arial, sans-serif">float</text>
+            <text x="450" y="104" text-anchor="middle" fill="#1b5e20" font-size="10" font-family="Arial, sans-serif">float</text>
+            <!-- several decimal spellings inside catchment -->
+            <circle cx="232" cy="72" r="3.5" fill="#c62828"/>
+            <circle cx="246" cy="72" r="3.5" fill="#c62828"/>
+            <circle cx="260" cy="72" r="4" fill="#0d47a1"/>
+            <circle cx="274" cy="72" r="3.5" fill="#c62828"/>
+            <circle cx="288" cy="72" r="3.5" fill="#c62828"/>
+            <text x="260" y="118" text-anchor="middle" fill="#555" font-size="10" font-family="Arial, sans-serif">
+                shaded band: reals that round to the same float — multiple decimal literals can land here
+            </text>
+        </svg>
+    </figure>
+    <figure class="fp-schematic fp-schematic-grid" aria-label="How d changes the grid spacing inside the same rounding band">
+        <svg viewBox="0 0 520 210" width="100%" height="210" role="img" aria-hidden="true">
+            <defs>
+                <marker id="arrowhead-grid" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+                    <polygon points="0 0, 8 4, 0 8" fill="#555"/>
+                </marker>
+            </defs>
+            <text x="260" y="15" text-anchor="middle" fill="#333" font-size="13" font-family="Arial, sans-serif">
+                Same rounding band; smaller d = coarser grid, larger d = finer grid
+            </text>
+            <text x="260" y="30" text-anchor="middle" fill="#555" font-size="9.5" font-family="Arial, sans-serif">
+                Colors match the diagram above: blue = this float · green = other floats · gray = <tspan font-style="italic">d</tspan>-digit lattice · red = literals that map here
+            </text>
+            <!-- shared band: half the distance from this float to each neighbor (midpoint to midpoint, schematic) -->
+            <rect x="212.5" y="44" width="95" height="132" fill="#4CAF50" fill-opacity="0.12" stroke="#2e7d32" stroke-width="1" stroke-dasharray="3 2"/>
+            <text x="260" y="58" text-anchor="middle" fill="#2e7d32" font-size="10" font-family="Arial, sans-serif">½ distance to each neighbor float</text>
+            <!-- neighbor floats: tall green ticks, same color/weight as first schematic -->
+            <line x1="165" y1="52" x2="165" y2="168" stroke="#1b5e20" stroke-width="2"/>
+            <line x1="355" y1="52" x2="355" y2="168" stroke="#1b5e20" stroke-width="2"/>
+            <!-- this float: tall blue tick, same as first schematic -->
+            <line x1="260" y1="48" x2="260" y2="172" stroke="#0d47a1" stroke-width="3"/>
+            <text x="260" y="44" text-anchor="middle" fill="#0d47a1" font-size="10" font-weight="bold" font-family="Arial, sans-serif">this float</text>
+            <text x="165" y="184" text-anchor="middle" fill="#1b5e20" font-size="9" font-family="Arial, sans-serif">float</text>
+            <text x="355" y="184" text-anchor="middle" fill="#1b5e20" font-size="9" font-family="Arial, sans-serif">float</text>
+            <!-- row 1: coarse d-digit lattice (small d) -->
+            <text x="8" y="92" fill="#555" font-size="11" font-family="Arial, sans-serif">smaller <tspan font-style="italic">d</tspan></text>
+            <line x1="48" y1="96" x2="472" y2="96" stroke="#888" stroke-width="2" marker-end="url(#arrowhead-grid)"/>
+            <line x1="100" y1="88" x2="100" y2="104" stroke="#bdbdbd" stroke-width="1.3"/>
+            <line x1="188" y1="88" x2="188" y2="104" stroke="#bdbdbd" stroke-width="1.3"/>
+            <line x1="276" y1="88" x2="276" y2="104" stroke="#bdbdbd" stroke-width="1.3"/>
+            <line x1="364" y1="88" x2="364" y2="104" stroke="#bdbdbd" stroke-width="1.3"/>
+            <line x1="452" y1="88" x2="452" y2="104" stroke="#bdbdbd" stroke-width="1.3"/>
+            <circle cx="260" cy="96" r="4" fill="#0d47a1"/>
+            <circle cx="276" cy="96" r="4" fill="#c62828" stroke="#fff" stroke-width="1"/>
+            <text x="260" y="118" text-anchor="middle" fill="#666" font-size="10" font-family="Arial, sans-serif">few lattice points land in the band</text>
+            <!-- row 2: fine d-digit lattice (large d) -->
+            <text x="8" y="158" fill="#555" font-size="11" font-family="Arial, sans-serif">larger <tspan font-style="italic">d</tspan></text>
+            <line x1="48" y1="162" x2="472" y2="162" stroke="#888" stroke-width="2" marker-end="url(#arrowhead-grid)"/>
+            <line x1="212" y1="154" x2="212" y2="170" stroke="#bdbdbd" stroke-width="1.2"/>
+            <line x1="228" y1="154" x2="228" y2="170" stroke="#bdbdbd" stroke-width="1.2"/>
+            <line x1="244" y1="154" x2="244" y2="170" stroke="#bdbdbd" stroke-width="1.2"/>
+            <line x1="260" y1="154" x2="260" y2="170" stroke="#bdbdbd" stroke-width="1.2"/>
+            <line x1="276" y1="154" x2="276" y2="170" stroke="#bdbdbd" stroke-width="1.2"/>
+            <line x1="292" y1="154" x2="292" y2="170" stroke="#bdbdbd" stroke-width="1.2"/>
+            <line x1="300" y1="154" x2="300" y2="170" stroke="#bdbdbd" stroke-width="1.2"/>
+            <circle cx="260" cy="162" r="4" fill="#0d47a1"/>
+            <circle cx="228" cy="162" r="3.5" fill="#c62828" stroke="#fff" stroke-width="1"/>
+            <circle cx="244" cy="162" r="3.5" fill="#c62828" stroke="#fff" stroke-width="1"/>
+            <circle cx="276" cy="162" r="3.5" fill="#c62828" stroke="#fff" stroke-width="1"/>
+            <circle cx="292" cy="162" r="3.5" fill="#c62828" stroke="#fff" stroke-width="1"/>
+            <circle cx="300" cy="162" r="3.5" fill="#c62828" stroke="#fff" stroke-width="1"/>
+            <text x="260" y="198" text-anchor="middle" fill="#666" font-size="10" font-family="Arial, sans-serif">finer lattice → more red dots in the band → more literals map to the same blue float</text>
+        </svg>
+        <figcaption>
+            The shaded strip is drawn with half the distance from the blue float to each green neighbor (schematic).
+            At a fixed magnitude, allowed <em>d</em>-digit decimals sit on a regular lattice: spacing is the “distance between
+            <em>d</em>-digit numbers” the tool prints. Larger <em>d</em> shrinks that step, so more lattice points lie in the
+            rounding band and the count goes up. Smaller <em>d</em> widens the step; the band can sit between lattice points,
+            so the count can drop—even to zero—or the request may fail if <em>d</em> is incompatible with the exact decimal length.
+        </figcaption>
+    </figure>
+</div>
 
 <div class="example">
     <h3>Why this matters</h3>
@@ -33,6 +182,117 @@
 
 {% block extra_js %}
 <script>
+    function escAttr(s) {
+        return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+    }
+
+    function formatAxisLabel(v) {
+        const a = Math.abs(v);
+        if (a !== 0 && (a < 1e-6 || a >= 1e7)) {
+            return v.toExponential(4);
+        }
+        return String(v);
+    }
+
+    /**
+     * SVG diagram: adjacent floats, rounding catchment band, d-digit lattice (gray), and hits (red).
+     */
+    function buildCatchmentDiagram(data) {
+        if (data.neighbor_lower === undefined || data.neighbor_higher === undefined) {
+            return '';
+        }
+        const fp = data.fp;
+        const lo = data.neighbor_lower;
+        const hi = data.neighbor_higher;
+        const m1 = (lo + fp) / 2;
+        const m2 = (fp + hi) / 2;
+        const decimals = data.d_digit_list.map(function(s) { return Number(s); })
+            .filter(function(v) { return !Number.isNaN(v); });
+        const stepNum = parseFloat(String(data.d_digit_distance).trim().replace(/^\+/, ''));
+        let vmin = Math.min(m1, lo, fp, hi);
+        let vmax = Math.max(m2, lo, fp, hi);
+        for (let i = 0; i < decimals.length; i++) {
+            vmin = Math.min(vmin, decimals[i]);
+            vmax = Math.max(vmax, decimals[i]);
+        }
+        let span = vmax - vmin;
+        if (!(span > 0)) {
+            vmin -= 1;
+            vmax += 1;
+            span = vmax - vmin;
+        }
+        const pad = span * 0.12;
+        vmin -= pad;
+        vmax += pad;
+
+        const W = 600;
+        const H = 148;
+        const L = 44;
+        const R = 44;
+        const rightX = W - R;
+        const usable = W - L - R;
+        const yAxis = 72;
+
+        function X(v) {
+            return L + ((v - vmin) / (vmax - vmin)) * usable;
+        }
+
+        const xc1 = X(m1);
+        const xc2 = X(m2);
+        const xLo = X(lo);
+        const xFp = X(fp);
+        const xHi = X(hi);
+
+        let svg = '<div class="catchment-diagram"><p class="catchment-diagram-caption">';
+        svg += 'Shaded band: rounding interval between midpoints of neighboring floats (width is ~one ULP in value). ';
+        svg += 'Gray ticks: every position on the <em>d</em>-digit lattice (step = “spacing” below)—larger <em>d</em> shrinks this step, so more lattice points fall in the band. ';
+        svg += 'Blue: your float; green: neighbors; red: lattice points that actually parse to this float (listed below). ';
+        if (data.d_digit_count === 0) {
+            svg += 'Here the count is 0: with this <em>d</em>, no lattice point in view lands in the band.';
+        }
+        svg += '</p><svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" height="' + H + '" role="img" aria-label="Rounding catchment, d-digit lattice, and equivalent decimals">';
+        svg += '<line x1="' + L + '" y1="' + yAxis + '" x2="' + rightX + '" y2="' + yAxis + '" stroke="#666" stroke-width="2"/>';
+        svg += '<rect x="' + Math.min(xc1, xc2) + '" y="' + (yAxis - 24) + '" width="' + Math.abs(xc2 - xc1) + '" height="48" fill="#4CAF50" fill-opacity="0.22" stroke="#2e7d32" stroke-width="1"/>';
+
+        if (Number.isFinite(stepNum) && stepNum > 0) {
+            const anchor = decimals.length ? Math.min.apply(null, decimals) : fp;
+            let g = anchor;
+            while (g > vmin) {
+                g -= stepNum;
+            }
+            while (g + stepNum < vmin) {
+                g += stepNum;
+            }
+            for (; g <= vmax; g += stepNum) {
+                const xg = X(g);
+                if (xg < L - 1 || xg > rightX + 1) {
+                    continue;
+                }
+                svg += '<line x1="' + xg + '" y1="' + (yAxis - 16) + '" x2="' + xg + '" y2="' + (yAxis + 16) + '" stroke="#bdbdbd" stroke-width="1" stroke-opacity="0.85"/>';
+            }
+        }
+
+        function tick(x, h1, h2, stroke, sw) {
+            return '<line x1="' + x + '" y1="' + h1 + '" x2="' + x + '" y2="' + h2 + '" stroke="' + stroke + '" stroke-width="' + sw + '"/>';
+        }
+        svg += tick(xLo, yAxis - 18, yAxis + 18, '#2e7d32', 2);
+        svg += tick(xFp, yAxis - 26, yAxis + 26, '#0d47a1', 3);
+        svg += tick(xHi, yAxis - 18, yAxis + 18, '#2e7d32', 2);
+
+        for (let i = 0; i < decimals.length; i++) {
+            const x = X(decimals[i]);
+            svg += '<circle cx="' + x + '" cy="' + yAxis + '" r="4" fill="#c62828" stroke="#fff" stroke-width="1"/>';
+        }
+
+        const labelY = yAxis + 38;
+        svg += '<text x="' + xLo + '" y="' + labelY + '" text-anchor="middle" fill="#2e7d32" font-size="10" font-family="Arial,sans-serif">' + escAttr(formatAxisLabel(lo)) + '</text>';
+        svg += '<text x="' + xFp + '" y="' + labelY + '" text-anchor="middle" fill="#0d47a1" font-size="11" font-weight="bold" font-family="Arial,sans-serif">' + escAttr(formatAxisLabel(fp)) + '</text>';
+        svg += '<text x="' + xHi + '" y="' + labelY + '" text-anchor="middle" fill="#2e7d32" font-size="10" font-family="Arial,sans-serif">' + escAttr(formatAxisLabel(hi)) + '</text>';
+        svg += '</svg></div>';
+
+        return svg;
+    }
+
     document.getElementById('decimalForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const decimal = document.getElementById('decimal').value.trim();
@@ -59,6 +319,7 @@
                     result.className = 'result success';
                     result.innerHTML = `
                         <div class="result-content">
+                            ${buildCatchmentDiagram(data)}
                             <strong>Input:</strong> ${data.input}<br>
                             <strong>d (significant digits):</strong> ${data.digits}<br>
                             <strong>Float (Python):</strong> ${data.fp}<br>

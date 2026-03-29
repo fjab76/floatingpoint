@@ -50,7 +50,7 @@ def exact_decimal_process():
         d_digit_result = result.get_d_digit_decimals(digits_value)
         d_digit_count, d_digit_distance, d_digit_list = d_digit_result
 
-        return jsonify({
+        payload = {
             "input": decimal_input,
             "digits": digits_value,
             "fp": result.fp,
@@ -60,7 +60,12 @@ def exact_decimal_process():
             "d_digit_count": d_digit_count,
             "d_digit_distance": str(d_digit_distance),
             "d_digit_list": [str(d) for d in d_digit_list],
-        })
+        }
+        if math.isfinite(float_value):
+            payload["neighbor_lower"] = math.nextafter(float_value, -math.inf)
+            payload["neighbor_higher"] = math.nextafter(float_value, math.inf)
+
+        return jsonify(payload)
     except ValueError as exc:
         error_msg = str(exc)
         if "could not convert string to float" in error_msg:

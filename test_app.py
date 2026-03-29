@@ -24,6 +24,8 @@ class FloatingpointAppTestCase(unittest.TestCase):
         response = self.client.get("/exact-decimal")
         self.assertEqual(response.status_code, 200)
         self.assertIn(b"Exact value", response.data)
+        self.assertIn(b"Representable floats are isolated points", response.data)
+        self.assertIn(b"regular lattice", response.data)
 
     def test_exact_decimal_with_valid_number(self) -> None:
         response = self.client.post("/exact-decimal", data={"decimal": "0.1", "digits": "5"})
@@ -44,6 +46,10 @@ class FloatingpointAppTestCase(unittest.TestCase):
         self.assertIn("d_digit_count", data)
         self.assertIn("d_digit_distance", data)
         self.assertIn("d_digit_list", data)
+        self.assertIn("neighbor_lower", data)
+        self.assertIn("neighbor_higher", data)
+        self.assertLess(data["neighbor_lower"], data["fp"])
+        self.assertLess(data["fp"], data["neighbor_higher"])
 
     def test_exact_decimal_with_empty_input(self) -> None:
         response = self.client.post("/exact-decimal", data={"decimal": "", "digits": "5"})
