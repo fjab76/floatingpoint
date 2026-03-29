@@ -12,8 +12,8 @@ A simple web application that demonstrates the client-server model. Users can en
 
 ## Requirements
 
-- Python 3.6 or higher
-- Flask 3.0.0
+- **Python 3.11** (or any **3.10+**; the codebase uses `match` / `case`)
+- Flask 3.0.0 (installed via `requirements.txt`)
 
 ## Installation
 
@@ -23,38 +23,44 @@ A simple web application that demonstrates the client-server model. Users can en
    cd floatingpoint
    ```
 
-2. Install dependencies:
+2. Install Python 3.11 with [Homebrew](https://brew.sh) (macOS):
    ```bash
+   brew install python@3.11
+   ```
+   If `python3.11` is not found, follow the **Caveats** Homebrew prints (often add Homebrew’s `python@3.11` `bin` directory to your `PATH`, or use `brew link python@3.11` if suggested).
+
+3. Create and use a virtual environment, then install dependencies:
+   ```bash
+   python3.11 -m venv .venv
+   source .venv/bin/activate
+   python -m pip install --upgrade pip
    pip install -r requirements.txt
    ```
 
 ## Running tests
 
-1. Ensure you have `pytest` installed:
+With the virtual environment activated (`source .venv/bin/activate`):
+
+1. Run pytest:
    ```bash
-   pip install pytest
+   pytest test_app.py
    ```
 
-2. Run the tests:
-   ```bash
-   pytest tests/
-   ```
-
-3. Run the tests:
+2. Or run the unittest suite:
    ```bash
    python -m unittest test_app.py -v
    ```
 
 ## Running the Application
 
-1. Start the Flask server:
+1. Start the Flask server (with the virtual environment activated):
    ```bash
    python app.py
    ```
 
 2. Open your web browser and navigate to:
    ```
-   http://localhost:5000
+   http://localhost:8080
    ```
 
 3. Enter your name in the text field and click "Get Greeting" to receive a personalized message.
