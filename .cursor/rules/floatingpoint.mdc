@@ -1,0 +1,44 @@
+---
+description: Floatingpoint project conventions, structure, FP usage, API, and testing
+alwaysApply: true
+---
+
+# Floatingpoint project
+
+## General
+
+- Follow Python best practices: type hints, docstrings, clear names.
+- Match `.pylintrc`; keep functions focused; match existing style.
+- Descriptive commit messages; docstrings for new functions, classes, methods; tests for new features and fixes.
+
+## Structure
+
+- Core logic: `fp.py`. Utilities: `fputil.py`. Web/API: e.g. `app.py`. Templates: `templates/`.
+
+## AI-generated code
+
+- Review suggestions for correctness and security; do not expose sensitive data or introduce vulnerabilities; respect copyright/licenses. Clarify or comment unclear or untested generated code.
+
+## Pull requests
+
+- Clear PR description; reference issues; tests pass before review. API responses for FP objects should expose only what is needed: e.g. `fp`, `bits`, `exact_decimal`, `unbiased_exp`.
+
+## Floating point
+
+- Use the `FP` class for manipulations. Exact decimal from a float:
+
+```python
+fp_obj = FP.from_float(your_float)
+print(fp_obj.exact_decimal)
+```
+
+- When exposing FP via API, include: `fp`, `bits`, `exact_decimal`, `unbiased_exp`.
+
+## Web/API
+
+- New routes: accept JSON or form data; validate and sanitize input; return relevant FP attributes in responses.
+
+## Testing and docs
+
+- Tests in `tests/` using `pytest` or `unittest`; cover new features and edge cases.
+- When conventions change, update this rule and README; add usage examples to README as needed.
