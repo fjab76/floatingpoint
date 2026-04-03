@@ -7,6 +7,7 @@ A small Flask app that explains **IEEE-754 binary64** (double-precision): exact 
 - **Home** — mission, float vs `Decimal` guidance, links to tools
 - **Exact value** — `FP.from_float`, exact rational decimal, d-digit decimal strings that round to the same float
 - **Segment / ULP** — unbiased exponent band, segment bounds, exact ULP as decimal
+- **Long-form note** — [Floating-point distribution, decimals, and precision](docs/floating-point-distribution-and-precision.md) (in-repo companion to the interactive tools)
 
 ## Requirements
 
