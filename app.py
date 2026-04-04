@@ -107,6 +107,7 @@ def segment_process():
         return jsonify({"error": "Cannot compute segment for this value."}), 400
 
     fp_obj = FP.from_float(float_value)
+    float_index = int((fp_obj.exact_decimal - seg.min_val) / seg.distance)
     return jsonify({
         "input": decimal_input,
         "fp": fp_obj.fp,
@@ -114,6 +115,8 @@ def segment_process():
         "min_val": str(seg.min_val),
         "max_val": str(seg.max_val),
         "distance": str(seg.distance),
+        "length": str(seg.length),
+        "float_index": float_index,
     })
 
 
