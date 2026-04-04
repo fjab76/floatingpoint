@@ -49,4 +49,5 @@ This is an IEEE-754 floating-point visualization tool (Flask, Python 3.11+).
 
 - Code is hosted in GitHub
 - All new features must be developed in a new branch
+- NEVER commit directly to the main branch
 - Follow the angular commit formatting
