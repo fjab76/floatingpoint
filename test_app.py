@@ -79,6 +79,20 @@ class FloatingpointAppTestCase(unittest.TestCase):
             data["distance"],
             "2.220446049250313080847263336181640625E-16",
         )
+        self.assertEqual(
+            data["length"],
+            "0.9999999999999997779553950749686919152736663818359375",
+        )
+        self.assertEqual(data["float_index"], 0)
+        self.assertEqual(data["num_floats"], 2 ** 52)
+
+    def test_segment_float_index_nonzero(self) -> None:
+        # 4503599627370497.0 is the second float in the e=52 segment (index 1)
+        response = self.client.post("/segment", data={"decimal": "4503599627370497"})
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.data)
+        self.assertEqual(data["float_index"], 1)
+        self.assertEqual(data["length"], "4503599627370495")
 
     def test_segment_non_finite(self) -> None:
         response = self.client.post("/segment", data={"decimal": "inf"})

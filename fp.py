@@ -167,19 +167,25 @@ class Segment:
     - min_val: the minimum floating-point number in the segment represented as an exact decimal
     - max_val: the maximum floating-point number in the segment represented as an exact decimal
     - distance: the distance between consecutive binary floating-point numbers in the segment represented as an exact decimal
+    - length: the real-number span of the binade (max_val - min_val) represented as an exact decimal
     """
 
-    def __init__(self, unbiased_exp: int, min_val: Decimal, max_val: Decimal, distance: Decimal) -> None:
+    def __init__(self, unbiased_exp: int, min_val: Decimal, max_val: Decimal, distance: Decimal, length: Decimal) -> None:
         self.unbiased_exp = unbiased_exp
         self.min_val = min_val
         self.max_val = max_val
         self.distance = distance
+        self.length = length
 
     def __repr__(self):
-        return f"Segment(unbiased_exp={self.unbiased_exp}, min_val={self.min_val}, max_val={self.max_val}, distance={self.distance})"
+        return f"Segment(unbiased_exp={self.unbiased_exp}, min_val={self.min_val}, max_val={self.max_val}, distance={self.distance}, length={self.length})"
 
     def __eq__(self, other):
-        return self.unbiased_exp == other.unbiased_exp and self.min_val == other.min_val and self.max_val == other.max_val and self.distance == other.distance
+        return (self.unbiased_exp == other.unbiased_exp
+                and self.min_val == other.min_val
+                and self.max_val == other.max_val
+                and self.distance == other.distance
+                and self.length == other.length)
 
     @staticmethod
     def from_exponent(e: int, ctx: Context) -> "Segment":
@@ -191,7 +197,8 @@ class Segment:
         min_val: Decimal = two**e
         max_val: Decimal = two**(e + 1) * (1 - two**(-p - 1))
         distance: Decimal = two**(e - p)
-        return Segment(e, min_val.normalize(), max_val.normalize(), distance.normalize())
+        length: Decimal = (max_val - min_val).normalize()
+        return Segment(e, min_val.normalize(), max_val.normalize(), distance.normalize(), length)
 
     @staticmethod
     def from_fp(f: float, ctx: Context) -> "Segment":

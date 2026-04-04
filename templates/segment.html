@@ -5,10 +5,10 @@
 <p>Each normal double with a given unbiased exponent lies in a <strong>binade</strong>: a half-open interval
     <code>[2<sup>e</sup>, 2<sup>e+1</sup>)</code> (for positive numbers; sign is handled separately). Within that
     band, adjacent floats are evenly spaced. That spacing is one <strong>ULP</strong> (unit in the last place)
-    for numbers in the segment — shown below as an exact decimal.</p>
-<p>ULP grows with magnitude: you have the same 53-bit precision, but the <em>gap</em> between neighbors scales
-    with <code>2<sup>e</sup></code>. For more on the exact value of one float, see
+    for numbers in the segment. For the exact decimal value of any float, see
     <a href="{{ url_for('exact_decimal_form') }}">Exact value</a>.</p>
+<p>ULP grows with magnitude: you have the same 53-bit precision, but the <em>gap</em> between neighbors scales
+    with <code>2<sup>e</sup></code>.</p>
 
 <form id="segmentForm">
     <div class="form-group">
@@ -46,14 +46,24 @@
                     result.textContent = data.error;
                 } else {
                     result.className = 'result success';
+                    const pct = data.num_floats > 1
+                        ? data.float_index / (data.num_floats - 1) * 100
+                        : 0;
+                    const pctLabel = pct === 0 ? '0' : pct >= 0.0001 ? pct.toFixed(4) : pct.toExponential(2);
                     result.innerHTML = `
                         <div class="result-content">
                             <strong>Input:</strong> ${data.input}<br>
                             <strong>Float (Python):</strong> ${data.fp}<br>
                             <strong>Unbiased exponent (segment e):</strong> ${data.unbiased_exp}<br>
-                            <strong>Segment min (exact decimal):</strong> ${data.min_val}<br>
-                            <strong>Segment max (exact decimal):</strong> ${data.max_val}<br>
-                            <strong>ULP / spacing (exact decimal):</strong> ${data.distance}
+                            <strong>Segment min:</strong> ${parseFloat(data.min_val)}<br>
+                            <strong>Segment max:</strong> ${parseFloat(data.max_val)}<br>
+                            <strong>Segment length:</strong> ${parseFloat(data.length)}<br>
+                            <strong>Distance between consecutive floats (ULP):</strong> ${parseFloat(data.distance)}<br>
+                            <strong>Float index in segment:</strong> ${data.float_index} of ${data.num_floats}<br>
+                            <div style="margin:6px 0 2px; background:#e9ecef; border-radius:4px; height:10px; overflow:hidden;">
+                                <div style="width:${pct}%; background:#4CAF50; height:100%;"></div>
+                            </div>
+                            <span style="font-size:12px; color:#666;">${pctLabel}% from segment start</span>
                         </div>
                     `;
                 }

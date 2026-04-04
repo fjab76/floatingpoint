@@ -6,8 +6,8 @@ A small Flask app that explains **IEEE-754 binary64** (double-precision): exact 
 
 - **Home** — mission, float vs `Decimal` guidance, links to tools
 - **Exact value** — `FP.from_float`, exact rational decimal, d-digit decimal strings that round to the same float
-- **Segment / ULP** — unbiased exponent band, segment bounds, exact ULP as decimal
-- **Long-form note** — [Floating-point distribution, decimals, and precision](docs/floating-point-distribution-and-precision.md) (in-repo companion to the interactive tools)
+- **Segment / ULP** — unbiased exponent band, segment bounds, ULP, segment length, float index within segment
+- **Notes** — [Floating-point distribution, decimals, and precision](docs/floating-point-distribution-and-precision.md) rendered client-side with syntax highlighting and KaTeX math
 
 ## Requirements
 
@@ -32,13 +32,8 @@ A small Flask app that explains **IEEE-754 binary64** (double-precision): exact 
 With the virtual environment activated:
 
 ```bash
-pytest test_app.py
-```
-
-or:
-
-```bash
-python -m unittest test_app.py -v
+pytest test_app.py   # integration tests
+pytest fp_test.py    # unit tests for FP/bit logic
 ```
 
 ## Running the application
@@ -54,12 +49,16 @@ Open [http://localhost:8080](http://localhost:8080).
 | Path | Purpose |
 |------|---------|
 | `GET /` | Home |
-| `GET` / `POST /exact-decimal` | Exact value tool (form + JSON) |
-| `GET` / `POST /segment` | Segment / ULP tool (form + JSON) |
+| `GET /exact-decimal` | Exact value tool (form) |
+| `POST /exact-decimal` | Exact value tool (JSON API) |
+| `GET /segment` | Segment / ULP tool (form) |
+| `POST /segment` | Segment / ULP tool (JSON API) |
+| `GET /notes` | Notes page |
+| `GET /notes/content` | Raw markdown served for client-side rendering |
 
 ## Architecture
 
 - **Core logic**: `fp.py`, `fputil.py`
 - **Web**: `app.py`, templates under `templates/`
 
-API-style responses expose only what is needed for FP insight (e.g. `fp`, `bits`, `exact_decimal`, `unbiased_exp` where applicable; segment adds `min_val`, `max_val`, `distance`).
+API-style responses expose only what is needed for FP insight (e.g. `fp`, `bits`, `exact_decimal`, `unbiased_exp` where applicable; segment adds `min_val`, `max_val`, `distance`, `length`, `float_index`, `num_floats`).
