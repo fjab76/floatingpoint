@@ -209,3 +209,5 @@ __marimo__/
 
 bin/
 pyvenv.cfg
+# Claude Code
+.claude/

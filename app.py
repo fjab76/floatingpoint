@@ -6,7 +6,7 @@ Flask web application for exploring IEEE-754 double-precision floating-point beh
 import math
 from decimal import ROUND_HALF_UP, Context
 
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, send_from_directory
 
 from fp import FP, Segment
 
@@ -115,6 +115,22 @@ def segment_process():
         "max_val": str(seg.max_val),
         "distance": str(seg.distance),
     })
+
+
+@app.route("/notes")
+def notes():
+    """Serve the floating-point notes page."""
+    return render_template("notes.html", nav_active="notes")
+
+
+@app.route("/notes/content")
+def notes_content():
+    """Serve the raw markdown notes file for client-side rendering."""
+    return send_from_directory(
+        "docs",
+        "floating-point-distribution-and-precision.md",
+        mimetype="text/plain",
+    )
 
 
 if __name__ == "__main__":

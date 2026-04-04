@@ -6,7 +6,7 @@
 - [Informal precision](#precision) — spacing, hardware paths, and arbitrary-precision contrast
 - [IEEE representation](#floating-point-number-representation) — sign, exponent, and significand (normal numbers)
 - [Distribution](#distribution-of-floating-point-numbers-on-the-number-line) — segments, ULP, safe integers
-- [Decimal round-trips](#decimal-round-trips) — canonical decimals, digit limits, segment vs individual precision
+- [Decimal round-trips](#decimal-round-trips-and-precision) — canonical decimals, digit limits, segment vs individual precision
 
 ## Floating-point numbers vs real numbers
 
