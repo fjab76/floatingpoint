@@ -46,6 +46,10 @@
                     result.textContent = data.error;
                 } else {
                     result.className = 'result success';
+                    const pct = data.num_floats > 1
+                        ? data.float_index / (data.num_floats - 1) * 100
+                        : 0;
+                    const pctLabel = pct === 0 ? '0' : pct >= 0.0001 ? pct.toFixed(4) : pct.toExponential(2);
                     result.innerHTML = `
                         <div class="result-content">
                             <strong>Input:</strong> ${data.input}<br>
@@ -55,7 +59,11 @@
                             <strong>Segment max (exact decimal):</strong> ${data.max_val}<br>
                             <strong>Segment length (exact decimal):</strong> ${data.length}<br>
                             <strong>Distance between consecutive numbers in segment (exact decimal):</strong> ${data.distance}<br>
-                            <strong>Float index in segment:</strong> ${data.float_index} of ${data.num_floats}
+                            <strong>Float index in segment:</strong> ${data.float_index} of ${data.num_floats}<br>
+                            <div style="margin:6px 0 2px; background:#e9ecef; border-radius:4px; height:10px; overflow:hidden;">
+                                <div style="width:${pct}%; background:#4CAF50; height:100%;"></div>
+                            </div>
+                            <span style="font-size:12px; color:#666;">${pctLabel}% from segment start</span>
                         </div>
                     `;
                 }
