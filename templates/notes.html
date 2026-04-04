@@ -103,6 +103,10 @@
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const text = await res.text();
       content.innerHTML = DOMPurify.sanitize(marked.parse(text));
+      // marked v9+ removed headerIds; add them manually using the same slug algorithm
+      content.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(h => {
+        h.id = h.textContent.toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '-');
+      });
       content.querySelectorAll('pre code').forEach(block => hljs.highlightElement(block));
       renderMathInElement(content, {
         delimiters: [
