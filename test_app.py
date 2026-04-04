@@ -84,6 +84,7 @@ class FloatingpointAppTestCase(unittest.TestCase):
             "0.9999999999999997779553950749686919152736663818359375",
         )
         self.assertEqual(data["float_index"], 0)
+        self.assertEqual(data["num_floats"], 2 ** 52)
 
     def test_segment_float_index_nonzero(self) -> None:
         # 4503599627370497.0 is the second float in the e=52 segment (index 1)

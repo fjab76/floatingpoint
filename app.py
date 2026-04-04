@@ -117,6 +117,7 @@ def segment_process():
         "distance": str(seg.distance),
         "length": str(seg.length),
         "float_index": float_index,
+        "num_floats": 2 ** 52,
     })
 
 
