@@ -95,16 +95,6 @@
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
 <script>
-  marked.use({
-    renderer: {
-      code({ text, lang }) {
-        const language = lang && hljs.getLanguage(lang) ? lang : 'plaintext';
-        const highlighted = hljs.highlight(text, { language }).value;
-        return `<pre><code class="hljs">${highlighted}</code></pre>`;
-      }
-    }
-  });
-
   (async () => {
     const loading = document.getElementById('notes-loading');
     const content = document.getElementById('notes-content');
@@ -113,6 +103,7 @@
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const text = await res.text();
       content.innerHTML = DOMPurify.sanitize(marked.parse(text));
+      content.querySelectorAll('pre code').forEach(block => hljs.highlightElement(block));
       renderMathInElement(content, {
         delimiters: [
           { left: '$$', right: '$$', display: true },
