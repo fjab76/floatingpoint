@@ -111,6 +111,10 @@
         ],
         throwOnError: false
       });
+      if (location.hash) {
+        const target = document.querySelector(location.hash);
+        if (target) target.scrollIntoView();
+      }
     } catch (err) {
       const p = document.createElement('p');
       p.style.color = '#721c24';
