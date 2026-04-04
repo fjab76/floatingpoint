@@ -89,6 +89,7 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
@@ -111,7 +112,7 @@
       const res = await fetch('/notes/content');
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const text = await res.text();
-      content.innerHTML = marked.parse(text);
+      content.innerHTML = DOMPurify.sanitize(marked.parse(text));
       renderMathInElement(content, {
         delimiters: [
           { left: '$$', right: '$$', display: true },
@@ -120,7 +121,10 @@
         throwOnError: false
       });
     } catch (err) {
-      content.innerHTML = `<p style="color:#721c24">Failed to load notes: ${err.message}</p>`;
+      const p = document.createElement('p');
+      p.style.color = '#721c24';
+      p.textContent = `Failed to load notes: ${err.message}`;
+      content.appendChild(p);
     } finally {
       loading.style.display = 'none';
     }
