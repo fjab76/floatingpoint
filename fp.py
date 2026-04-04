@@ -167,6 +167,7 @@ class Segment:
     - min_val: the minimum floating-point number in the segment represented as an exact decimal
     - max_val: the maximum floating-point number in the segment represented as an exact decimal
     - distance: the distance between consecutive binary floating-point numbers in the segment represented as an exact decimal
+    - length: the real-number span of the binade (max_val - min_val) represented as an exact decimal
     """
 
     def __init__(self, unbiased_exp: int, min_val: Decimal, max_val: Decimal, distance: Decimal, length: Decimal) -> None:

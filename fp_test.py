@@ -99,6 +99,7 @@ ctx = Context(prec=100, rounding=ROUND_HALF_UP)
 def test_segment_from_exponent(data, expected):
     assert Segment.from_exponent(*data) == expected
 
+
 @pytest.mark.parametrize(
     "data,expected",
     [
