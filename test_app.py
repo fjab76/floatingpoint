@@ -90,6 +90,17 @@ class FloatingpointAppTestCase(unittest.TestCase):
         response = self.client.post("/segment", data={"decimal": ""})
         self.assertEqual(response.status_code, 400)
 
+    def test_notes_page(self) -> None:
+        response = self.client.get("/notes")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"notes-content", response.data)
+
+    def test_notes_content(self) -> None:
+        response = self.client.get("/notes/content")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("text/plain", response.content_type)
+        self.assertIn(b"Floating-point numbers", response.data)
+
 
 if __name__ == "__main__":
     unittest.main()
