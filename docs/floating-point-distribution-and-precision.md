@@ -368,14 +368,9 @@ The precision is therefore 17 digits—consistent with Python’s `float` parsin
 1023.9999999999999
 ```
 
-Here $FP_n$ is the last float in the band with $e = 9$, where $d_{\text{abs}} = 0.0000000000001136868377216160297393798828125$. Aligning $n$ and $d_{\text{abs}}$, the order of magnitude just above $d_{\text{abs}}$ lines up with the 16th digit of $n$:
+Here $FP_n$ is the last float in the band with $e = 9$.
 
-```
-1023.999999999999|887
-       0.000000000000|1136868377216160297393798828125
-```
-
-So although $1023.999999999999887$ has 17 significant digits, *segment* precision in that band is at most 16 digits in the sense that not all 17-digit decimals in the band can be distinguished. For instance, these two 17-digit decimals share a float:
+Although $1023.999999999999887$ has 17 significant digits, *segment* precision in that band is at most 16 digits in the sense that not all 17-digit decimals in the band can be distinguished. For instance, these two 17-digit decimals share a float:
 
 - $1023.0000000000004$
 - $1023.0000000000005$
@@ -388,10 +383,6 @@ and only one of them will round-trip:
 >>> float(1023.0000000000005)
 1023.0000000000005
 ```
-
-(Both literals parse to the same IEEE-754 binary64 value on typical Python builds; the original blog post showed a different first line, likely a transcription typo.)
-
-Another formulation: all 16-digit decimals in that neighbourhood can map to distinct floats, but not every float has a 16-digit decimal representative.
 
 There is thus a distinction between **precision of an individual decimal** (minimum digits to identify its float) and **precision in a segment** (maximum digits such that all decimals of that length in the band map to distinct floats).
 
