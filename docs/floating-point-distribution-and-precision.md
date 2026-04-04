@@ -28,7 +28,6 @@ To build intuition, it helps to ask what problem floating-point is meant to solv
 
 Let's first make a detour and take a look at the integer numbers: in any given interval, the amount of integers is finite. That property simplifies integers representation. Vendors define computer architectures to support a specific interval and if you ever go beyond the maximum value, you wrap around to the other end of the interval (what is known as [modular arithmetic](https://en.wikipedia.org/wiki/Modular_arithmetic)):
 
-
 ```java
 // Java
 jshell> Integer.MAX_VALUE + 1 == Integer.MIN_VALUE
@@ -37,19 +36,18 @@ true
 
 Here's the problem now: given two real numbers, no matter how close they are to each other, it is always possible to find another number in between. That's another way to say that, in any given interval, there are infinite real numbers.
 
-
 ### Standard IEEE 754
 
 To get around this problem, the [IEEE 754](https://en.wikipedia.org/wiki/IEEE_754-1985) standard was devised to pick a discrete set of reference values so that any other real is mapped to one of them, typically by *round to nearest, ties to even*.
 
-Think of each representable float as owning a *catchment interval* on the line: every real $r$ in that interval rounds to the same floating-point value $FP_1$, e.g.
+Think of each representable float as owning a *catchment interval* on the number line: every real number $r$ in that interval rounds to the same floating-point value $FP_1$, e.g.
 
 ```python
 >>> float(72057594037927956)
 7.205759403792795e+16
 ```
 
-For the same literal, older Java could print a different decimal string than Python:
+For the same literal, older Java prints a different decimal string than Python:
 
 ```java
 // Java (JShell 11.0.11)
@@ -57,15 +55,15 @@ jshell> double d = 72057594037927956d
 d ==> 7.2057594037927952E16
 ```
 
-What matters is that floating-point numbers are defined in binary format, so as long as two decimal numbers have the same binary representation, both are correct. In this case, both $7.205759403792795*10^{16}$ and $7.2057594037927952*10^{16}$ correspond to the same double-precision binary format
+What matters is that floating-point numbers are defined in binary format, so as long as two decimal numbers have the same binary representation, both are correct. In this case, both $7.205759403792795\times 10^{16}$ and $7.2057594037927952\times 10^{16}$ correspond to the same double-precision binary format
 
 ```
 0100001101110000000000000000000000000000000000000000000000000001
 ```
 
-There are 15 integers from $7.2057594037927945\times 10^{16}$ through $7.2057594037927959\times 10^{16}$ (not to mention the infinite values resulting of adding a fractional part to each of those integers), so rounding to float induces an [equivalence relation](https://en.wikipedia.org/wiki/Equivalence_relation) on the set of real numbers.
+There are 15 integers from $7.2057594037927945\times 10^{16}$ through $7.2057594037927959\times 10^{16}$ (not to mention the infinite values resulting of adding a fractional part to each of those integers).
 
-Arguably, the canonical representative would be the exact decimal number, $7.2057594037927952*10^{16}$, corresponding to the binary representation. On the other hand, it can be argued that the last digit in the 17-digit $7.2057594037927952*10^{16}$ is not significant as the 16-digit decimal number $7.205759403792795*10^{16}$ is enough to represent the floating-point binary number. And in general this is the preferred approach. The Java behaviour seen above was considered as a [bug](https://bugs.java.com/bugdatabase/view_bug.do?bug_id=4511638) and is already fixed in newer versions:
+Arguably, the canonical representative would be the exact decimal number $7.2057594037927952\times 10^{16}$ corresponding to the binary representation. On the other hand, it can be argued that the last digit in the 17-digit $7.2057594037927952\times 10^{16}$ is not significant as the 16-digit decimal number $7.205759403792795\times 10^{16}$ is enough to represent the floating-point binary number. And in general this is the preferred approach. The Java behaviour seen above was considered as a [bug](https://bugs.java.com/bugdatabase/view_bug.do?bug_id=4511638) and is already fixed in newer versions:
 
 ```java
 // Java (JShell 21)
@@ -75,11 +73,9 @@ d ==> 7.205759403792795E16
 
 ## Precision
 
-The more floating-point values lie in a given interval, the smaller the spacing between neighbours, so fewer distinct reals share the same float.
+The more floating-point values lie in a given interval, the smaller the spacing between neighbours, so fewer distinct real numbers share the same floating-point number.
 
-All real numbers that map to the same float are **indistinguishable** at that precision.
-
-Precision, understood as the ability to separate arbitrarily close numbers, therefore grows with how many floats are available in the format.
+All real numbers that map to the same floating-point number are **indistinguishable** at that precision.
 
 When [IEEE 754](https://en.wikipedia.org/wiki/IEEE_754-1985) speaks of [single-](https://en.wikipedia.org/wiki/Single-precision_floating-point_format) and [double-precision](https://en.wikipedia.org/wiki/Double-precision_floating-point_format) formats, it is largely about how many distinct floating-point values the format provides.
 
@@ -87,7 +83,7 @@ Integers from $72057594037927945$ to $72057594037927959$ can all round to the sa
 
 ### Floating-point vs arbitrary-precision arithmetic
 
-Floating-point arithmetic is fast because FPUs implement it in hardware—for example, on typical x86-64 systems scalar `double` and `float` often use SIMD-family registers (e.g. 128-bit SSE `xmm0`–`xmm15`); historically, x87 stack-based floating-point was a separate path, and the exact hardware story depends on platform, ABI, and compiler. When more precision is needed, libraries implement arbitrary-precision arithmetic in software—`BigDecimal` in Java, [mpmath](https://mpmath.org) in Python, and so on.
+Floating-point arithmetic is fast because FPUs implement it in hardware, for example, on typical x86-64 systems scalar `double` and `float` often use SIMD-family registers (e.g. 128-bit SSE `xmm0`–`xmm15`); historically, x87 stack-based floating-point was a separate path, and the exact hardware story depends on platform, ABI, and compiler. When more precision is needed, libraries implement arbitrary-precision arithmetic in software—`BigDecimal` in Java, [mpmath](https://mpmath.org) in Python, and so on.
 
 A tiny $\pi$ integration example shows the speed gap:
 
@@ -119,7 +115,7 @@ def arbitrary_precision_pi(num_steps, precision):
 
 For `num_steps = 1e7`, `double_pi` finishes in a couple of seconds on a typical laptop, while `arbitrary_precision_pi` can take minutes.
 
-*The `% time` excerpts below are illustrative and machine-dependent (blog-era measurements); expect different seconds on your hardware and Python version.*
+*The `% time` excerpts below are illustrative and machine-dependent.*
 
 ```text
 % time python pi.py
@@ -135,19 +131,19 @@ python pi.py  121.73s user 0.18s system 99% cpu 2:02.32 total
 
 ---
 
-What follows explains how those values are laid out in memory, how they are distributed on the number line, and how decimal round-trips relate to “precision” in a stricter sense.
+What follows explains how floating-point numbers are laid out in memory, how they are distributed on the number line, and how decimal round-trips relate to “precision” in a stricter sense.
 
 ## Floating-point number representation
 
-**Scope (deliberate simplification).** What follows is written for intuition, not exhaustive IEEE 754 coverage. The spacing and “segment” picture treats **normalised finite** values as the main case: implicit leading one, evenly spaced numbers within an exponent band, and the usual $2^p$ count per band. **Subnormal** numbers, **exact zero**, **infinities**, and **NaNs** change edge behaviour and formulas near the underflow threshold; they are mentioned only where the narrative needs them. Trading some rigor for clarity is intentional—once the mental model sticks, the full standard completes the picture.
+What follows is written for intuition, not exhaustive IEEE 754 coverage.
 
-**Exponent notation.** Write **$E$** for the **biased** exponent—the integer actually stored in the exponent field. Write **$e$** for the **unbiased** (true) exponent used in value formulas for normal numbers. They are related by
+ **Subnormal** numbers, **exact zero**, **infinities**, and **NaNs** are not covered.
+
+**Exponent notation.** Write **$E$** for the **biased** exponent, the integer actually stored in the exponent field in memory. Write **$e$** for the **unbiased** (true) exponent used in value formulas for normal numbers. They are related by
 
 $$
 e = E - \text{bias}.
 $$
-
-The same symbol $e$ appears later in segment spacing ($\min = 2^e$, and so on); there it always means this unbiased exponent.
 
 As specified by [IEEE 754](https://en.wikipedia.org/wiki/IEEE_754-1985), a floating-point number $N$ consists of three fields: a sign bit $s$, a biased exponent field storing $E$, and a mantissa or significand $m$:
 
@@ -155,9 +151,9 @@ $$
 N = (-1)^{s} \cdot 2^{E-\text{bias}} \cdot m
 \quad
 \begin{cases}
-s \in \{0, 1\} \\
-E \in \{0, \ldots, 255\} & \text{single precision} \\
-E \in \{0, \ldots, 2047\} & \text{double precision}
+s \in 0, 1 
+E \in 0, \ldots, 255 & \text{single precision} 
+E \in 0, \ldots, 2047 & \text{double precision}
 \end{cases}
 $$
 
@@ -167,15 +163,15 @@ $$
 f = \sum_{i=1}^{p} b_{i} \cdot (2^{-1})^{i}
 \quad
 \begin{cases}
-p = 23 & \quad \text{single precision} \\
-p = 52 & \quad \text{double precision} \\
-b_i \in \{0, 1\}
+p = 23 & \quad \text{single precision} 
+p = 52 & \quad \text{double precision} 
+b_i \in 0, 1
 \end{cases}
 $$
 
 **Note:** $m$ can always be normalised by multiplying by the appropriate power of 2 (in other words, by choosing the appropriate pair $(E, f)$).
 
-For **normal** numbers, substitute $e = E - \text{bias}$ and $m = 1 + f$:
+Therefore
 
 $$
 N = (-1)^{s} \cdot 2^{e} \cdot (1 + f).
@@ -183,14 +179,14 @@ $$
 
 Only the fractional part of the significand is stored, because the leading 1 is implicit.
 
-The values *“all-0s”* and *“all-1s”* of the exponent field $E$ have special meanings (for example 0, infinity, or NaN) and are excluded from the normal-number picture above.
+The values *“all-0s”* and *“all-1s”* of the exponent field $E$ have special meanings (for example 0, infinity, or NaN).
 
 The bias is
 
 $$
 \text{bias} =
 \begin{cases}
-127 & \quad \text{single precision} \\
+127 & \quad \text{single precision} 
 1023 & \quad \text{double precision}
 \end{cases}
 $$
@@ -199,16 +195,16 @@ Here is the [32-bit memory layout](https://en.wikipedia.org/wiki/IEEE_754-1985#/
 
 ## Distribution of floating-point numbers on the number line
 
-To explore the distribution of floating-point numbers, it is useful to imagine the number line divided into segments, each segment containing all floating-point numbers that share the same **unbiased** exponent $e$ (hence the same stored $E = e + \text{bias}$ for normals).
+To explore the distribution of floating-point numbers, it is useful to imagine the number line divided into segments, each segment containing all floating-point numbers that share the same **unbiased** exponent $e$ (hence the same stored $E = e + \text{bias}$).
 
 Each of those segments has the following characteristics:
 
 - contains $2^{p}$ floating-point numbers
 - the minimum value in the segment corresponds to a significand with all digits equal to 0
 - the maximum value in the segment corresponds to a significand with all digits equal to 1
-- two consecutive numbers in the segment differ by 1 unit in the last position of the significand (call the absolute distance between two consecutive numbers $d_{\text{abs}}$)
-- two consecutive numbers in different segments differ by a distance $d'_{\text{abs}}$ equal to $d_{\text{abs}}$ of the smaller segment
-- the maximum relative distance is the absolute distance divided by the minimum number in the segment
+- two consecutive numbers in the segment differ by 1 unit in the last position of the significand (that's the absolute distance between two consecutive numbers $d_{\text{abs}}$ in that segment)
+- two consecutive numbers in different segments differ by a distance $d'*{\text{abs}}$ equal to $d*{\text{abs}}$ of the smaller segment
+- the maximum relative distance in a segment is the absolute distance divided by the minimum number in the segment
 
 $$
 \min = 2^{e}
@@ -233,7 +229,7 @@ d_{\text{abs}} = 2^{e} \cdot 2^{-p} = 2^{e-p}
 $$
 
 $$
-d'_{\text{abs}} = \min_{e+1} - \max_e = 2^{e+1} - 2^{e} \cdot 2 \left(1-2^{-p-1}\right) = 2^{e-p}
+d'*{\text{abs}} = \min*{e+1} - \max_e = 2^{e+1} - 2^{e} \cdot 2 \left(1-2^{-p-1}\right) = 2^{e-p}
 $$
 
 $$
@@ -259,17 +255,19 @@ This contrasts with [fixed-point arithmetic](https://en.wikipedia.org/wiki/Fixed
 
 Some example segments in double-precision format (column $e$ is the unbiased exponent):
 
-| $e$ | min | max | $d_{\text{abs}}$ |
-|------------------|-----|-----|--------------------|
-| 50 | 1125899906842624.0 | 2251799813685247.75 | 0.25 |
-| 51 | 2251799813685248.0 | 4503599627370495.5 | 0.5 |
-| 52 | 4503599627370496.0 | 9007199254740991.0 | 1.0 |
-| 53 | 9007199254740992.0 | 18014398509481982.0 | 2.0 |
-| 54 | 18014398509481984.0 | 36028797018963964.0 | 4.0 |
-| 55 | 36028797018963968.0 | 72057594037927928.0 | 8.0 |
-| 56 | 72057594037927936.0 | 144115188075855856.0 | 16.0 |
-| 57 | 144115188075855872.0 | 288230376151711712.0 | 32.0 |
-| 58 | 288230376151711744.0 | 576460752303423424.0 | 64.0 |
+
+| $e$ | min                  | max                  | $d_{\text{abs}}$ |
+| --- | -------------------- | -------------------- | ---------------- |
+| 50  | 1125899906842624.0   | 2251799813685247.75  | 0.25             |
+| 51  | 2251799813685248.0   | 4503599627370495.5   | 0.5              |
+| 52  | 4503599627370496.0   | 9007199254740991.0   | 1.0              |
+| 53  | 9007199254740992.0   | 18014398509481982.0  | 2.0              |
+| 54  | 18014398509481984.0  | 36028797018963964.0  | 4.0              |
+| 55  | 36028797018963968.0  | 72057594037927928.0  | 8.0              |
+| 56  | 72057594037927936.0  | 144115188075855856.0 | 16.0             |
+| 57  | 144115188075855872.0 | 288230376151711712.0 | 32.0             |
+| 58  | 288230376151711744.0 | 576460752303423424.0 | 64.0             |
+
 
 For values of $e \geq 53$, the distance between consecutive floating-point numbers satisfies $d_{\text{abs}} \geq 2$, so some integers must be rounded to the corresponding floating-point number. **Every** integer in $[-2^{53}, 2^{53}]$ is represented exactly in double precision (the usual contiguous **safe integer** range); outside that interval, not every integer is exact, though some larger integers still happen to coincide with a representable value.
 
@@ -286,52 +284,46 @@ That has practical consequences. Languages such as JavaScript, which represent a
 }
 ```
 
-<a id="decimal-round-trips"></a>
-
 ## Decimal round-trips and precision
 
 As in [Precision](#precision) above, *precision* was described as “the ability to tell apart numbers arbitrarily close to each other.”
 
-The more floating-point values are defined, the more real numbers can be distinguished in that sense.
+The more floating-point values are defined, the more real numbers can be distinguished.
 
-However, no finite set of floating-point numbers can match the continuum of real numbers. Rounding real numbers to floating-point can be viewed as a [surjective](https://en.wikipedia.org/wiki/Surjective_function) map $f$ in which many reals map to the same floating-point value (many inputs, one output float). There is therefore no ordinary function that inverts $f$ on all of $\mathbb{R}$: the preimage of each float is an infinite set of reals.
+However, no finite set of floating-point numbers can match the continuum of real numbers. Rounding real numbers to floating-point can be viewed as a [surjective](https://en.wikipedia.org/wiki/Surjective_function) map $f$ in which many real numbers map to the same floating-point value. 
 
-When we write $f^{-1}$ below, we mean a **canonicalisation**: a convention that chooses one preferred decimal string (or representative real) per float—such as a shortest round-trip decimal or a language’s `repr`—not a mathematical inverse of the rounding relation. Only inputs that match that convention survive round-trip unchanged; for other reals $r$ with the same float image, $f^{-1}(f(r))$ need not equal $r$. This is one reason floating-point behaviour can be confusing: $r$ is transformed into the binary representation of the corresponding float and back to decimal for display, and the displayed value may differ from the original.
+As a result, among all real numbers $\{r\}$ such that $f(r) = FP$, only one can be recovered when applying the inverse function. For all others, $f^{-1}(f(r)) \neq r$. 
 
-That behaviour can be mitigated by defining precision as the number of digits $d$ such that all [d-digit decimal numbers uniquely identify and round-trip](https://www.exploringbinary.com/decimal-precision-of-binary-floating-point-numbers/) their float: $f^{-1}(f(r)) = r$.
+And this is one of the reasons why floating-point numbers are confusing.
 
-A $d$-digit number *round-trips* if, when converted to binary and back to decimal with rounding to nearest at $d$ digits, the original $d$-digit string is recovered.
+This undesirable behaviour can be avoided by defining precision as the number of digits $d$ such that all [d-digit numbers can be uniquely identified and therefore round-trip](https://www.exploringbinary.com/decimal-precision-of-binary-floating-point-numbers) so that $f^{-1}(f(r)) = r$.
 
-A round-trip from decimal to binary and back can therefore yield a different decimal string than the one you started with, even when both strings denote the same float.
-
-The only way to recover the original decimal representation is to turn that surjective map into an [injective](https://en.wikipedia.org/wiki/Injective_function) one: at most one allowed decimal input per float.
-
-To do that, restrict to a subset of the reals by limiting the number $d$ of digits in the decimal representation. That limit is tied to the scale $d_{\text{abs}}$ of floating-point numbers in the corresponding exponent band $e$: the least significant decimal digit must be at least one order of magnitude larger than $d_{\text{abs}}$.
+The value of $d$ is determined by the scale of $d_{abs}$ in the corresponding interval $e$: intuitively, the least significant digit of the $d$-digit decimal must be at least one order of magnitude greater than $d_{abs}$.
 
 It can be proved that in double precision, the maximum $d$ that works across the entire domain of reals is [15 digits](https://www.exploringbinary.com/number-of-digits-required-for-round-trip-conversions/) (whereas in single precision it is 6). In particular exponent bands, a larger $d$ may suffice.
 
-After making $f$ injective, some floats may not correspond to any $d$-digit decimal: every $d$-digit decimal maps to some float, but not every float has a $d$-digit decimal representative.
+__Note__: some floating-point numbers may not correspond to any $d$-digit decimal, in other words, every $d$-digit decimal maps to some floating-point number but not every floating-point number is mapped by a $d$-digit decimal.
 
 ### Study cases
 
 #### Precision of a segment
 
-The integers in the interval $\{7.2057594037927900\times10^{16}, \ldots, 7.2057594037928000\times10^{16}\}$ all have 17 digits.
+The integers in the interval $7.2057594037927900\times10^{16}, \ldots, 7.2057594037928000\times10^{16}$ all have 17 digits.
 
 The floating-point numbers in that interval are:
 
-$\{7.2057594037927904\times10^{16},\, 7.2057594037927912\times10^{16},\, 7.2057594037927920\times10^{16},\, 7.2057594037927928\times10^{16},\, 7.2057594037927936\times10^{16},\, 7.2057594037927952\times10^{16},\, 7.2057594037927968\times10^{16},\, 7.2057594037927984\times10^{16},\, 7.2057594037928000\times10^{16}\}$.
+$7.2057594037927904\times10^{16}, 7.2057594037927912\times10^{16}, 7.2057594037927920\times10^{16}, 7.2057594037927928\times10^{16}, 7.2057594037927936\times10^{16}, 7.2057594037927952\times10^{16}, 7.2057594037927968\times10^{16}, 7.2057594037927984\times10^{16}, 7.2057594037928000\times10^{16}$.
 
 Several decimals therefore collapse to the same float, for example:
 
-- $\{7.2057594037927909\times10^{16}, \ldots, 7.2057594037927915\times10^{16}\} \rightarrow 7.2057594037927912\times10^{16}$
-- $\{7.2057594037927945\times10^{16}, \ldots, 7.2057594037927959\times10^{16}\} \rightarrow 7.2057594037927952\times10^{16}$
+- $7.2057594037927909\times10^{16}, \ldots, 7.2057594037927915\times10^{16} \rightarrow 7.2057594037927912\times10^{16}$
+- $7.2057594037927945\times10^{16}, \ldots, 7.2057594037927959\times10^{16} \rightarrow 7.2057594037927952\times10^{16}$
 
 With 16-digit numbers, some values still collide:
 
-- $\{7.205759403792796\times10^{16},\, 7.205759403792797\times10^{16}\} \rightarrow 7.2057594037927968\times10^{16}$
+- $7.205759403792796\times10^{16}, 7.205759403792797\times10^{16} \rightarrow 7.2057594037927968\times10^{16}$
 
-With 15-digit precision, the integers in the interval reduce to $\{7.20575940379279\times10^{16},\, 7.20575940379280\times10^{16}\}$, where:
+With 15-digit precision, the integers in the interval reduce to $7.20575940379279\times10^{16}, 7.20575940379280\times10^{16}$, where:
 
 - $7.20575940379279\times10^{16} \rightarrow 7.2057594037927904\times10^{16}$
 - $7.20575940379280\times10^{16} \rightarrow 7.2057594037928000\times10^{16}$
@@ -403,11 +395,5 @@ Another formulation: all 16-digit decimals in that neighbourhood can map to dist
 
 There is thus a distinction between **precision of an individual decimal** (minimum digits to identify its float) and **precision in a segment** (maximum digits such that all decimals of that length in the band map to distinct floats).
 
----
 
-## Notes for maintainers
 
-- **Internal links:** The outline and cross-references use fragment URLs. Explicit HTML anchors (`id="precision"`, `id="decimal-round-trips"`) keep those jumps stable in preview tools that do not match GitHub’s auto-generated heading IDs. Other outline targets use GitHub-style heading slugs; VS Code and other Markdown previews may differ from github.com.
-- **Math rendering:** This file uses `$...$` for inline math and `$$...$$` for display math, which [GitHub-flavoured Markdown](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/writing-mathematical-expressions) supports in `.md` files. Other viewers may need MathJax or KaTeX.
-- **Figures:** None are embedded; introductory “catchment interval” prose replaces former blog figures. Add assets under `docs/assets/` if you want diagrams later.
-- The **JSON error** example is illustrative of JavaScript “safe integer” validation, not specific to this repository’s API.
