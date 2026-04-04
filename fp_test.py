@@ -92,8 +92,8 @@ ctx = Context(prec=100, rounding=ROUND_HALF_UP)
 @pytest.mark.parametrize(
     "data,expected",
     [
-        ((9, ctx), Segment(9, Decimal('512'), Decimal('1023.9999999999998863131622783839702606201171875'), Decimal('1.136868377216160297393798828125E-13'))),
-        ((52, ctx), Segment(52, Decimal('4503599627370496'), Decimal('9007199254740991'), Decimal('1'))),        
+        ((9, ctx), Segment(9, Decimal('512'), Decimal('1023.9999999999998863131622783839702606201171875'), Decimal('1.136868377216160297393798828125E-13'), Decimal('511.9999999999998863131622783839702606201171875'))),
+        ((52, ctx), Segment(52, Decimal('4503599627370496'), Decimal('9007199254740991'), Decimal('1'), Decimal('4503599627370495'))),
     ]
 )
 def test_segment_from_exponent(data, expected):
@@ -101,13 +101,25 @@ def test_segment_from_exponent(data, expected):
 
 @pytest.mark.parametrize(
     "data,expected",
-    [        
-        ((1023.0, ctx), Segment(9, Decimal('512'), Decimal('1023.9999999999998863131622783839702606201171875'), Decimal('1.136868377216160297393798828125E-13'))),
-        ((4503599627370497.0, ctx), Segment(52, Decimal('4503599627370496'), Decimal('9007199254740991'), Decimal('1')))
+    [
+        ((1023.0, ctx), Segment(9, Decimal('512'), Decimal('1023.9999999999998863131622783839702606201171875'), Decimal('1.136868377216160297393798828125E-13'), Decimal('511.9999999999998863131622783839702606201171875'))),
+        ((4503599627370497.0, ctx), Segment(52, Decimal('4503599627370496'), Decimal('9007199254740991'), Decimal('1'), Decimal('4503599627370495')))
     ]
 )
 def test_segment_from_fp(data, expected):
     assert Segment.from_fp(*data) == expected
+
+
+@pytest.mark.parametrize(
+    "exponent,expected_length",
+    [
+        (52, Decimal('4503599627370495')),
+        (9,  Decimal('511.9999999999998863131622783839702606201171875')),
+    ]
+)
+def test_segment_length(exponent, expected_length):
+    seg = Segment.from_exponent(exponent, ctx)
+    assert seg.length == expected_length
 
 
 @pytest.mark.parametrize(
