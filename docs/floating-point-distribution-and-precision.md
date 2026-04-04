@@ -203,7 +203,7 @@ Each of those segments has the following characteristics:
 - the minimum value in the segment corresponds to a significand with all digits equal to 0
 - the maximum value in the segment corresponds to a significand with all digits equal to 1
 - two consecutive numbers in the segment differ by 1 unit in the last position of the significand (that's the absolute distance between two consecutive numbers $d_{\text{abs}}$ in that segment)
-- two consecutive numbers in different segments differ by a distance $d'*{\text{abs}}$ equal to $d*{\text{abs}}$ of the smaller segment
+- two consecutive numbers in different segments differ by a distance $d'_{\text{abs}}$ equal to $d_{\text{abs}}$ of the smaller segment
 - the maximum relative distance in a segment is the absolute distance divided by the minimum number in the segment
 
 $$
@@ -229,7 +229,7 @@ d_{\text{abs}} = 2^{e} \cdot 2^{-p} = 2^{e-p}
 $$
 
 $$
-d'*{\text{abs}} = \min*{e+1} - \max_e = 2^{e+1} - 2^{e} \cdot 2 \left(1-2^{-p-1}\right) = 2^{e-p}
+d'_{\text{abs}} = \min_{e+1} - \max_e = 2^{e+1} - 2^{e} \cdot 2 \left(1-2^{-p-1}\right) = 2^{e-p}
 $$
 
 $$
