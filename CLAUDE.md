@@ -44,6 +44,8 @@ This is an IEEE-754 floating-point visualization tool (Flask, Python 3.11+).
 - Single responsibility per function.
 - All routes validate and sanitize input before use.
 - Tests: integration tests in `test_app.py`, unit tests in `fp_test.py`; both use `unittest.TestCase` (pytest-compatible).
+- Formatting and linting: use rules in .pylintrc when changing python files
+- Make sure to update the readme file accordingly
 
 ## Version control system
 
