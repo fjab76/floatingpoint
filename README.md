@@ -8,7 +8,7 @@ A small Flask app that explains **IEEE-754 binary64** (double-precision): exact 
 - **Exact value** — `FP.from_float`, exact rational decimal, d-digit decimal strings that round to the same float
 - **Segment / ULP** — unbiased exponent band, segment bounds, ULP, segment length, float index within segment
 - **Notes** — [Floating-point distribution, decimals, and precision](docs/floating-point-distribution-and-precision.md) rendered client-side with syntax highlighting and KaTeX math
-- **Neighbours** — given a non-negative float and count n (1–1000), returns an ordered table of the next n consecutive representable IEEE-754 double-precision floats after the input (seed float in row 0, neighbours in rows 1–n); optionally accepts d (1–50) to show, for each float, the count of d-digit decimal numbers that round to it
+- **Neighbours** — given a non-negative float and count n (1–1000), returns an ordered table of the next n consecutive representable IEEE-754 double-precision floats after the input (seed float in row 0, neighbours in rows 1–n); optionally accepts d (1–50) to show, for each float, the count of d-digit decimal numbers that round to it (shown as N/A when the float's exact decimal representation has fewer than d significant digits)
 
 ## Requirements
 
