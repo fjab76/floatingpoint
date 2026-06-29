@@ -128,7 +128,7 @@ def neighbours_form():
 
 
 @app.route("/neighbours", methods=["POST"])
-def neighbours_process():
+def neighbours_process():  # pylint: disable=too-many-return-statements
     """Return the next n consecutive floats after the given seed float."""
     decimal_input = request.form.get("decimal", "").strip()
     n_input = request.form.get("n", "").strip()

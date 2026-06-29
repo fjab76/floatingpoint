@@ -155,6 +155,21 @@ class FloatingpointAppTestCase(unittest.TestCase):
         data = json.loads(response.data)
         self.assertIn("error", data)
 
+    def test_neighbours_n_at_cap(self) -> None:
+        response = self.client.post("/neighbours", data={"decimal": "1.0", "n": "1000"})
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.data)
+        self.assertEqual(len(data["neighbours"]), 1000)
+
+    def test_neighbours_near_max_float(self) -> None:
+        import sys
+        response = self.client.post("/neighbours", data={
+            "decimal": str(sys.float_info.max), "n": "1"
+        })
+        self.assertEqual(response.status_code, 400)
+        data = json.loads(response.data)
+        self.assertIn("error", data)
+
     def test_neighbours_non_finite(self) -> None:
         response = self.client.post("/neighbours", data={"decimal": "inf", "n": "5"})
         self.assertEqual(response.status_code, 400)
