@@ -8,6 +8,7 @@ A small Flask app that explains **IEEE-754 binary64** (double-precision): exact 
 - **Exact value** — `FP.from_float`, exact rational decimal, d-digit decimal strings that round to the same float
 - **Segment / ULP** — unbiased exponent band, segment bounds, ULP, segment length, float index within segment
 - **Notes** — [Floating-point distribution, decimals, and precision](docs/floating-point-distribution-and-precision.md) rendered client-side with syntax highlighting and KaTeX math
+- **Neighbours** — given a non-negative float and count n (1–1000), returns an ordered list of the next n consecutive representable IEEE-754 double-precision floats after the input
 
 ## Requirements
 
@@ -53,6 +54,8 @@ Open [http://localhost:8080](http://localhost:8080).
 | `POST /exact-decimal` | Exact value tool (JSON API) |
 | `GET /segment` | Segment / ULP tool (form) |
 | `POST /segment` | Segment / ULP tool (JSON API) |
+| `GET /neighbours` | Neighbours tool (form) |
+| `POST /neighbours` | Neighbours tool (JSON API) |
 | `GET /notes` | Notes page |
 | `GET /notes/content` | Raw markdown served for client-side rendering |
 
