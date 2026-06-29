@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Neighbours{% endblock %}
+{% block content %}
+<h1>Neighbours</h1>
+<p>Given a non-negative float and a count <strong>n</strong> (1–1000), lists the next
+   <em>n</em> consecutive representable IEEE-754 double-precision floats in ascending
+   order. Each step is one ULP in the current binade.</p>
+
+<form id="neighboursForm">
+    <div class="form-group">
+        <label for="decimal">Number (must be ≥ 0):</label>
+        <input type="text" id="decimal" name="decimal" required placeholder="e.g., 0.1, 1.0, 1024">
+    </div>
+    <div class="form-group">
+        <label for="n">Count (n, 1–1000):</label>
+        <input type="number" id="n" name="n" required min="1" max="1000" placeholder="e.g., 10">
+    </div>
+    <button type="submit">Show neighbours</button>
+</form>
+
+<div class="loading" id="loading">Processing your request...</div>
+<div class="result" id="result"></div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('neighboursForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const decimal = document.getElementById('decimal').value.trim();
+        const n = document.getElementById('n').value.trim();
+        const button = document.querySelector('#neighboursForm button[type="submit"]');
+        const loading = document.getElementById('loading');
+        const result = document.getElementById('result');
+        result.style.display = 'none';
+        result.className = 'result';
+        loading.style.display = 'block';
+        button.disabled = true;
+        const formData = new FormData();
+        formData.append('decimal', decimal);
+        formData.append('n', n);
+        fetch('/neighbours', { method: 'POST', body: formData })
+            .then(response => response.json())
+            .then(data => {
+                loading.style.display = 'none';
+                button.disabled = false;
+                if (data.error) {
+                    result.className = 'result error';
+                    result.textContent = data.error;
+                } else {
+                    result.className = 'result success';
+                    const items = data.neighbours.map(v => `<li>${v}</li>`).join('');
+                    result.innerHTML = `
+                        <div class="result-content">
+                            <strong>Input:</strong> ${data.input}<br>
+                            <strong>Float (Python):</strong> ${data.fp}<br>
+                            <strong>Next ${data.neighbours.length} neighbour(s):</strong>
+                            <ol style="margin-top:8px; padding-left:24px;">${items}</ol>
+                        </div>`;
+                }
+                result.style.display = 'block';
+            })
+            .catch(() => {
+                loading.style.display = 'none';
+                button.disabled = false;
+                result.className = 'result error';
+                result.textContent = 'An error occurred. Please try again.';
+                result.style.display = 'block';
+            });
+    });
+</script>
+{% endblock %}

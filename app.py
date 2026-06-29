@@ -121,6 +121,12 @@ def segment_process():
     })
 
 
+@app.route("/neighbours")
+def neighbours_form():
+    """Serve the consecutive-neighbours explorer page."""
+    return render_template("neighbours.html", nav_active="neighbours")
+
+
 @app.route("/notes")
 def notes():
     """Serve the floating-point notes page."""
