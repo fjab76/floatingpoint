@@ -213,16 +213,26 @@ class FloatingpointAppTestCase(unittest.TestCase):
             self.assertIn("d_digit_count", row)
             self.assertTrue(row["d_digit_count"] is None or isinstance(row["d_digit_count"], int))
 
-    def test_neighbours_d_exceeds_digits_shows_null(self) -> None:
-        # 1.0 has exact decimal Decimal('1') — 1 significant digit.
-        # d=2 exceeds that, so get_d_digit_decimals raises ValueError → null for all rows.
+    def test_neighbours_d_exceeds_digits_shows_null_for_seed(self) -> None:
+        # 1.0's exact decimal is Decimal('1') — 1 significant digit.
+        # d=2 exceeds that for the seed only; neighbours have ~55 digits so they return a count.
         response = self.client.post("/neighbours", data={"decimal": "1.0", "n": "2", "d": "2"})
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data["d"], 2)
-        for row in data["rows"]:
-            self.assertIn("d_digit_count", row)
-            self.assertIsNone(row["d_digit_count"])
+        self.assertIsNone(data["rows"][0]["d_digit_count"])          # seed: ValueError → null
+        self.assertIsNotNone(data["rows"][1]["d_digit_count"])       # neighbour: succeeds
+        self.assertIsNotNone(data["rows"][2]["d_digit_count"])       # neighbour: succeeds
+
+    def test_neighbours_d_per_row_independence(self) -> None:
+        # Confirms that a neighbour returning a valid count is not suppressed
+        # by the seed raising ValueError. Uses decimal=1.0, d=2:
+        # seed (1.0) → null; neighbours have ~55 digits → non-null count.
+        response = self.client.post("/neighbours", data={"decimal": "1.0", "n": "1", "d": "2"})
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.data)
+        self.assertIsNone(data["rows"][0]["d_digit_count"])
+        self.assertIsInstance(data["rows"][1]["d_digit_count"], int)
 
     def test_neighbours_d_out_of_range(self) -> None:
         response = self.client.post("/neighbours", data={"decimal": "0.1", "n": "3", "d": "51"})

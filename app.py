@@ -180,25 +180,14 @@ def neighbours_process():  # pylint: disable=too-many-return-statements
     except OverflowError:
         return jsonify({"error": "Reached infinity before collecting enough neighbours."}), 400
 
-    # Validate d against the seed; if it fails, treat d as invalid for all rows
-    d_valid = True
-    if d is not None:
-        try:
-            seed.get_d_digit_decimals(d)
-        except ValueError:
-            d_valid = False
-
     def make_row(fp_obj: FP) -> dict:
         """Build a single response row, optionally including d-digit count."""
         row: dict = {"fp": fp_obj.fp}
         if d is not None:
-            if d_valid:
-                try:
-                    count, _, _ = fp_obj.get_d_digit_decimals(d)
-                    row["d_digit_count"] = count
-                except ValueError:
-                    row["d_digit_count"] = None
-            else:
+            try:
+                count, _, _ = fp_obj.get_d_digit_decimals(d)
+                row["d_digit_count"] = count
+            except ValueError:
                 row["d_digit_count"] = None
         return row
 
