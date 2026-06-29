@@ -129,9 +129,10 @@ def neighbours_form():
 
 @app.route("/neighbours", methods=["POST"])
 def neighbours_process():  # pylint: disable=too-many-return-statements
-    """Return the next n consecutive floats after the given seed float."""
+    """Return seed + next n consecutive floats, with optional d-digit decimal counts per row."""
     decimal_input = request.form.get("decimal", "").strip()
     n_input = request.form.get("n", "").strip()
+    d_input = request.form.get("d", "").strip()
 
     if not decimal_input:
         return jsonify({"error": "Please enter a number"}), 400
@@ -158,23 +159,57 @@ def neighbours_process():  # pylint: disable=too-many-return-statements
     if n < 1 or n > 1000:
         return jsonify({"error": "Count n must be between 1 and 1000."}), 400
 
+    d = None
+    if d_input:
+        try:
+            d = int(d_input)
+        except ValueError:
+            return jsonify({"error": "Significant digits d must be a positive integer."}), 400
+        if d < 1 or d > 50:
+            return jsonify({"error": "Significant digits d must be between 1 and 50."}), 400
+
     seed = FP.from_float(float_value)
-    neighbours = []
+    fp_objects = [seed]
     try:
         gen = seed.fp_gen()
         next(gen)  # skip the seed itself
         for fp_obj in gen:
-            neighbours.append(fp_obj.fp)
-            if len(neighbours) == n:
+            fp_objects.append(fp_obj)
+            if len(fp_objects) == n + 1:
                 break
     except OverflowError:
         return jsonify({"error": "Reached infinity before collecting enough neighbours."}), 400
 
-    return jsonify({
+    # Validate d against the seed; if it fails, treat d as invalid for all rows
+    d_valid = True
+    if d is not None:
+        try:
+            seed.get_d_digit_decimals(d)
+        except ValueError:
+            d_valid = False
+
+    def make_row(fp_obj: FP) -> dict:
+        """Build a single response row, optionally including d-digit count."""
+        row: dict = {"fp": fp_obj.fp}
+        if d is not None:
+            if d_valid:
+                try:
+                    count, _, _ = fp_obj.get_d_digit_decimals(d)
+                    row["d_digit_count"] = count
+                except ValueError:
+                    row["d_digit_count"] = None
+            else:
+                row["d_digit_count"] = None
+        return row
+
+    result: dict = {
         "input": decimal_input,
-        "fp": seed.fp,
-        "neighbours": neighbours,
-    })
+        "rows": [make_row(fp_obj) for fp_obj in fp_objects],
+    }
+    if d is not None:
+        result["d"] = d
+
+    return jsonify(result)
 
 
 @app.route("/notes")
