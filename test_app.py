@@ -149,6 +149,12 @@ class FloatingpointAppTestCase(unittest.TestCase):
         data = json.loads(response.data)
         self.assertIn("error", data)
 
+    def test_neighbours_negative_zero(self) -> None:
+        response = self.client.post("/neighbours", data={"decimal": "-0.0", "n": "5"})
+        self.assertEqual(response.status_code, 400)
+        data = json.loads(response.data)
+        self.assertIn("error", data)
+
     def test_neighbours_non_finite(self) -> None:
         response = self.client.post("/neighbours", data={"decimal": "inf", "n": "5"})
         self.assertEqual(response.status_code, 400)

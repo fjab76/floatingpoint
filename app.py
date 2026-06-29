@@ -147,7 +147,7 @@ def neighbours_process():
     if not math.isfinite(float_value):
         return jsonify({"error": "Please enter a finite number (not infinity or NaN)."}), 400
 
-    if float_value < 0:
+    if float_value < 0 or (float_value == 0.0 and math.copysign(1, float_value) < 0):
         return jsonify({"error": "Please enter a non-negative number (≥ 0)."}), 400
 
     try:
