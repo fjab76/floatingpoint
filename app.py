@@ -127,6 +127,56 @@ def neighbours_form():
     return render_template("neighbours.html", nav_active="neighbours")
 
 
+@app.route("/neighbours", methods=["POST"])
+def neighbours_process():
+    """Return the next n consecutive floats after the given seed float."""
+    decimal_input = request.form.get("decimal", "").strip()
+    n_input = request.form.get("n", "").strip()
+
+    if not decimal_input:
+        return jsonify({"error": "Please enter a number"}), 400
+
+    if not n_input:
+        return jsonify({"error": "Please enter a count n"}), 400
+
+    try:
+        float_value = float(decimal_input)
+    except ValueError:
+        return jsonify({"error": "Invalid number. Please enter a valid floating-point literal."}), 400
+
+    if not math.isfinite(float_value):
+        return jsonify({"error": "Please enter a finite number (not infinity or NaN)."}), 400
+
+    if float_value < 0:
+        return jsonify({"error": "Please enter a non-negative number (≥ 0)."}), 400
+
+    try:
+        n = int(n_input)
+    except ValueError:
+        return jsonify({"error": "Count n must be a positive integer."}), 400
+
+    if n < 1 or n > 1000:
+        return jsonify({"error": "Count n must be between 1 and 1000."}), 400
+
+    seed = FP.from_float(float_value)
+    neighbours = []
+    try:
+        gen = seed.fp_gen()
+        next(gen)  # skip the seed itself
+        for fp_obj in gen:
+            neighbours.append(fp_obj.fp)
+            if len(neighbours) == n:
+                break
+    except OverflowError:
+        return jsonify({"error": "Reached infinity before collecting enough neighbours."}), 400
+
+    return jsonify({
+        "input": decimal_input,
+        "fp": seed.fp,
+        "neighbours": neighbours,
+    })
+
+
 @app.route("/notes")
 def notes():
     """Serve the floating-point notes page."""

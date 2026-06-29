@@ -115,6 +115,70 @@ class FloatingpointAppTestCase(unittest.TestCase):
         self.assertIn("text/plain", response.content_type)
         self.assertIn(b"Floating-point numbers", response.data)
 
+    def test_neighbours_page(self) -> None:
+        response = self.client.get("/neighbours")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"Neighbours", response.data)
+
+    def test_neighbours_valid(self) -> None:
+        response = self.client.post("/neighbours", data={"decimal": "0.1", "n": "3"})
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.data)
+        self.assertEqual(data["input"], "0.1")
+        self.assertEqual(data["fp"], 0.1)
+        self.assertEqual(len(data["neighbours"]), 3)
+        self.assertEqual(data["neighbours"][0], 0.10000000000000002)
+        self.assertEqual(data["neighbours"][1], 0.10000000000000003)
+        self.assertEqual(data["neighbours"][2], 0.10000000000000005)
+
+    def test_neighbours_empty_decimal(self) -> None:
+        response = self.client.post("/neighbours", data={"decimal": "", "n": "5"})
+        self.assertEqual(response.status_code, 400)
+        data = json.loads(response.data)
+        self.assertIn("error", data)
+
+    def test_neighbours_invalid_decimal(self) -> None:
+        response = self.client.post("/neighbours", data={"decimal": "abc", "n": "5"})
+        self.assertEqual(response.status_code, 400)
+        data = json.loads(response.data)
+        self.assertIn("error", data)
+
+    def test_neighbours_negative_float(self) -> None:
+        response = self.client.post("/neighbours", data={"decimal": "-1.0", "n": "5"})
+        self.assertEqual(response.status_code, 400)
+        data = json.loads(response.data)
+        self.assertIn("error", data)
+
+    def test_neighbours_non_finite(self) -> None:
+        response = self.client.post("/neighbours", data={"decimal": "inf", "n": "5"})
+        self.assertEqual(response.status_code, 400)
+        data = json.loads(response.data)
+        self.assertIn("error", data)
+
+    def test_neighbours_missing_n(self) -> None:
+        response = self.client.post("/neighbours", data={"decimal": "1.0"})
+        self.assertEqual(response.status_code, 400)
+        data = json.loads(response.data)
+        self.assertIn("error", data)
+
+    def test_neighbours_n_zero(self) -> None:
+        response = self.client.post("/neighbours", data={"decimal": "1.0", "n": "0"})
+        self.assertEqual(response.status_code, 400)
+        data = json.loads(response.data)
+        self.assertIn("error", data)
+
+    def test_neighbours_n_exceeds_cap(self) -> None:
+        response = self.client.post("/neighbours", data={"decimal": "1.0", "n": "1001"})
+        self.assertEqual(response.status_code, 400)
+        data = json.loads(response.data)
+        self.assertIn("error", data)
+
+    def test_neighbours_n_not_integer(self) -> None:
+        response = self.client.post("/neighbours", data={"decimal": "1.0", "n": "abc"})
+        self.assertEqual(response.status_code, 400)
+        data = json.loads(response.data)
+        self.assertIn("error", data)
+
 
 if __name__ == "__main__":
     unittest.main()
