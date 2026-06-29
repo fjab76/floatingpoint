@@ -125,11 +125,14 @@ class FloatingpointAppTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data["input"], "0.1")
-        self.assertEqual(data["fp"], 0.1)
-        self.assertEqual(len(data["neighbours"]), 3)
-        self.assertEqual(data["neighbours"][0], 0.10000000000000002)
-        self.assertEqual(data["neighbours"][1], 0.10000000000000003)
-        self.assertEqual(data["neighbours"][2], 0.10000000000000005)
+        self.assertNotIn("d", data)
+        self.assertEqual(len(data["rows"]), 4)  # seed + 3 neighbours
+        self.assertEqual(data["rows"][0]["fp"], 0.1)
+        self.assertEqual(data["rows"][1]["fp"], 0.10000000000000002)
+        self.assertEqual(data["rows"][2]["fp"], 0.10000000000000003)
+        self.assertEqual(data["rows"][3]["fp"], 0.10000000000000005)
+        for row in data["rows"]:
+            self.assertNotIn("d_digit_count", row)
 
     def test_neighbours_empty_decimal(self) -> None:
         response = self.client.post("/neighbours", data={"decimal": "", "n": "5"})
@@ -159,7 +162,7 @@ class FloatingpointAppTestCase(unittest.TestCase):
         response = self.client.post("/neighbours", data={"decimal": "1.0", "n": "1000"})
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
-        self.assertEqual(len(data["neighbours"]), 1000)
+        self.assertEqual(len(data["rows"]), 1001)  # seed + 1000 neighbours
 
     def test_neighbours_near_max_float(self) -> None:
         import sys
@@ -196,6 +199,45 @@ class FloatingpointAppTestCase(unittest.TestCase):
 
     def test_neighbours_n_not_integer(self) -> None:
         response = self.client.post("/neighbours", data={"decimal": "1.0", "n": "abc"})
+        self.assertEqual(response.status_code, 400)
+        data = json.loads(response.data)
+        self.assertIn("error", data)
+
+    def test_neighbours_with_d(self) -> None:
+        response = self.client.post("/neighbours", data={"decimal": "0.1", "n": "2", "d": "15"})
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.data)
+        self.assertEqual(data["d"], 15)
+        self.assertEqual(len(data["rows"]), 3)  # seed + 2 neighbours
+        for row in data["rows"]:
+            self.assertIn("d_digit_count", row)
+            self.assertTrue(row["d_digit_count"] is None or isinstance(row["d_digit_count"], int))
+
+    def test_neighbours_d_exceeds_digits_shows_null(self) -> None:
+        # 1.0 has exact decimal Decimal('1') — 1 significant digit.
+        # d=2 exceeds that, so get_d_digit_decimals raises ValueError → null for all rows.
+        response = self.client.post("/neighbours", data={"decimal": "1.0", "n": "2", "d": "2"})
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.data)
+        self.assertEqual(data["d"], 2)
+        for row in data["rows"]:
+            self.assertIn("d_digit_count", row)
+            self.assertIsNone(row["d_digit_count"])
+
+    def test_neighbours_d_out_of_range(self) -> None:
+        response = self.client.post("/neighbours", data={"decimal": "0.1", "n": "3", "d": "51"})
+        self.assertEqual(response.status_code, 400)
+        data = json.loads(response.data)
+        self.assertIn("error", data)
+
+    def test_neighbours_d_zero(self) -> None:
+        response = self.client.post("/neighbours", data={"decimal": "0.1", "n": "3", "d": "0"})
+        self.assertEqual(response.status_code, 400)
+        data = json.loads(response.data)
+        self.assertIn("error", data)
+
+    def test_neighbours_d_not_integer(self) -> None:
+        response = self.client.post("/neighbours", data={"decimal": "0.1", "n": "3", "d": "abc"})
         self.assertEqual(response.status_code, 400)
         data = json.loads(response.data)
         self.assertIn("error", data)
